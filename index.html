@@ -4,696 +4,1440 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>House Search</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23163d31'/%3E%3Cpath d='M6 16 16 7l10 9v10H9V16Z' fill='%23f7f9f6'/%3E%3Cpath d='M13 26v-7h6v7' fill='%23265d7e'/%3E%3C/svg%3E">
 <style>
+:root {
+  --ink: #1f2428;
+  --muted: #68727d;
+  --line: #dfe5df;
+  --paper: #fbfaf6;
+  --surface: #ffffff;
+  --soft: #eef3ef;
+  --green: #2d6a4f;
+  --green-dark: #163d31;
+  --blue: #265d7e;
+  --copper: #b95e3e;
+  --gold: #9c6b1e;
+  --shadow: 0 12px 34px rgba(31, 36, 40, 0.08);
+}
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-       background: #f5f5f5; color: #222; padding: 24px; }
-h1 { font-size: 1.3rem; font-weight: 600; margin-bottom: 4px; }
-.meta { font-size: 0.85rem; color: #666; margin-bottom: 24px; }
-h2 { font-size: 1rem; font-weight: 600; color: #555; margin: 28px 0 10px;
-     text-transform: uppercase; letter-spacing: 0.05em; }
-h3 { font-size: 0.85rem; font-weight: 600; color: #777; margin: 14px 0 8px; }
-.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
-.card { background: #fff; border-radius: 8px; padding: 16px;
-        box-shadow: 0 1px 3px rgba(0,0,0,.08); }
-.card.price-drop { border-left: 3px solid #e05c2b; }
-.price { font-size: 1.25rem; font-weight: 700; color: #111; }
-.drop-badge { font-size: 0.75rem; background: #fde8e0; color: #b84a1e;
-              border-radius: 4px; padding: 2px 6px; margin-left: 8px;
-              vertical-align: middle; }
-.specs { font-size: 0.85rem; color: #555; margin: 4px 0 8px; }
-.address a { font-size: 0.9rem; color: #1a73e8; text-decoration: none; font-weight: 500; }
-.address a:hover { text-decoration: underline; }
-.footer { font-size: 0.78rem; color: #999; margin-top: 8px; }
-.none { color: #888; font-style: italic; margin-top: 8px; }
-.new-build { font-size: 0.75rem; background: #e6f4ea; color: #1e7e34;
-             border-radius: 4px; padding: 2px 6px; margin-left: 6px;
-             vertical-align: middle; }
-.builder-own { font-size: 0.75rem; background: #fff4d6; color: #8a5a00;
-               border-radius: 4px; padding: 2px 6px; margin-left: 6px;
-               vertical-align: middle; }
+html { background: var(--paper); }
+body {
+  min-width: 320px;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: linear-gradient(180deg, #f3f6f0 0%, var(--paper) 22rem);
+  color: var(--ink);
+  line-height: 1.45;
+}
+a { color: inherit; }
+.page {
+  width: min(1180px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 24px 0 48px;
+}
+.hero {
+  position: relative;
+  overflow: hidden;
+  border-radius: 8px;
+  color: #fff;
+  background:
+    linear-gradient(90deg, rgba(18, 45, 37, 0.94), rgba(18, 45, 37, 0.80) 48%, rgba(18, 45, 37, 0.55)),
+    url("chalkboard.jpg") center / cover;
+  box-shadow: var(--shadow);
+}
+.hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: inherit;
+}
+.hero-content { position: relative; z-index: 1; padding: 28px; }
+.eyebrow {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #b8dfc7;
+  margin-bottom: 6px;
+}
+.hero-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+}
+h1 {
+  font-size: clamp(1.85rem, 4vw, 3rem);
+  line-height: 1.05;
+  font-weight: 750;
+  letter-spacing: 0;
+}
+.updated-pill {
+  flex: 0 0 auto;
+  border: 1px solid rgba(255,255,255,0.28);
+  background: rgba(255,255,255,0.13);
+  border-radius: 999px;
+  padding: 7px 11px;
+  font-size: 0.78rem;
+  font-weight: 650;
+  color: #eef8f0;
+}
+.hero-copy {
+  max-width: 720px;
+  margin-top: 10px;
+  color: rgba(255,255,255,0.82);
+  font-size: 0.98rem;
+}
+.nowrap { white-space: nowrap; }
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 22px;
+}
+.stat {
+  min-height: 78px;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.94);
+  color: var(--ink);
+  padding: 12px 14px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.14);
+}
+.stat-label {
+  display: block;
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.stat-value {
+  display: block;
+  margin-top: 4px;
+  color: var(--green-dark);
+  font-size: 1.35rem;
+  font-weight: 780;
+}
+.content { margin-top: 24px; }
+.section {
+  margin-top: 28px;
+  padding-top: 2px;
+}
+.section:first-child { margin-top: 0; }
+.section-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 9px;
+}
+h2 {
+  color: var(--green-dark);
+  font-size: 1rem;
+  font-weight: 780;
+  letter-spacing: 0;
+}
+.section-count {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 650;
+}
+.town-block { margin-top: 18px; }
+.town-heading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #4d5962;
+  font-size: 0.85rem;
+  font-weight: 760;
+  margin: 0 0 8px;
+}
+.town-heading::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--blue);
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  gap: 14px;
+}
+.card {
+  display: flex;
+  min-height: 178px;
+  flex-direction: column;
+  gap: 10px;
+  background: var(--surface);
+  border: 1px solid rgba(31, 36, 40, 0.09);
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 3px 12px rgba(31, 36, 40, 0.05);
+  transition: transform 150ms ease, box-shadow 150ms ease, border-color 150ms ease;
+}
+.card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(45, 106, 79, 0.28);
+  box-shadow: 0 14px 26px rgba(31, 36, 40, 0.09);
+}
+.card.price-drop { border-left: 4px solid var(--copper); }
+.card.is-new { border-top: 3px solid var(--blue); }
+.card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+.price {
+  color: var(--ink);
+  font-size: 1.38rem;
+  font-weight: 800;
+  line-height: 1.05;
+}
+.badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: flex-end;
+}
+.badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 22px;
+  border-radius: 999px;
+  padding: 3px 8px;
+  font-size: 0.7rem;
+  font-weight: 750;
+  white-space: nowrap;
+}
+.drop-badge { background: #f7e1d9; color: #8f3f29; }
+.new-build { background: #dff0e5; color: #1f5e43; }
+.builder-own { background: #f8edc9; color: #795111; }
 .builder-own[title] { cursor: help; }
-.year { font-size: 0.78rem; color: #888; margin-top: 4px; }
-.tax { font-size: 0.85rem; color: #444; margin-top: 4px; }
-.tax-rate { font-size: 0.75rem; color: #999; }
+.facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  color: #43505a;
+  font-size: 0.86rem;
+}
+.fact {
+  border: 1px solid #e3e8e3;
+  border-radius: 999px;
+  background: #f7f9f6;
+  padding: 3px 8px;
+}
+.address a {
+  display: inline-block;
+  color: var(--blue);
+  font-size: 0.94rem;
+  font-weight: 720;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+.address a:hover { text-decoration: underline; }
+.details {
+  display: grid;
+  gap: 4px;
+  margin-top: auto;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+.tax { color: #3f4c45; font-size: 0.82rem; }
+.tax-rate { color: var(--muted); }
+.transit { color: var(--blue); font-size: 0.82rem; }
+.transit .station { font-weight: 650; }
+.footer { color: #7b858c; }
+.none {
+  border: 1px dashed var(--line);
+  border-radius: 8px;
+  background: rgba(255,255,255,0.62);
+  color: var(--muted);
+  padding: 18px;
+  font-style: italic;
+}
+@media (max-width: 760px) {
+  .page { width: min(100% - 20px, 1180px); padding-top: 10px; }
+  .hero-content { padding: 20px; }
+  .hero-top { display: block; }
+  .updated-pill { display: inline-flex; margin-top: 12px; }
+  .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .grid { grid-template-columns: 1fr; }
+  .section-header { align-items: flex-start; flex-direction: column; gap: 3px; }
+}
+@media (max-width: 430px) {
+  .card-top { display: block; }
+  .badges { justify-content: flex-start; margin-top: 8px; }
+}
 </style>
 </head>
 <body>
-<h1>House Search</h1>
-<p class="meta">67 listings · $900K–$1.5M · 3+ bd · 2+ ba · updated 2026-06-07</p>
-<h2>🆕 New in last 7 days (14)</h2><h3>Burlington, MA (1)</h3><div class='grid'>
-<div class="card">
-  <div class="price">$1,375,000</div>
-  <div class="specs">5 bd / 4.0 ba  ·  5,223 sqft</div>
-  <div class="address"><a href="https://www.redfin.com/MA/Burlington/12-Corcoran-Rd-01803/home/11548181" target="_blank">12 Corcoran Rd, Burlington, MA, 01803</a></div>
-  <div class="year">Built: 2003</div>
-  <div class="tax">Est. tax/yr: $12,128 <span class="tax-rate">(@ $8.82/$1000)</span></div>
-  <div class="footer">3d on market · Single Family Residential · first seen 2026-06-05</div>
-</div></div><h3>Framingham, MA (3)</h3><div class='grid'>
-<div class="card">
-  <div class="price">$1,049,000</div>
-  <div class="specs">4 bd / 3.5 ba  ·  3,300 sqft</div>
-  <div class="address"><a href="https://www.redfin.com/MA/Framingham/92-Flanagan-Dr-01701/home/11641063" target="_blank">92 Flanagan Dr, Framingham, MA, 01701</a></div>
-  <div class="year">Built: 1981</div>
-  <div class="tax">Est. tax/yr: $13,280 <span class="tax-rate">(@ $12.66/$1000)</span></div>
-  <div class="footer">4d on market · Single Family Residential · first seen 2026-06-04</div>
-</div>
-<div class="card">
-  <div class="price">$1,275,000<span class="new-build">New build</span></div>
-  <div class="specs">3 bd / 3.0 ba  ·  2,559 sqft</div>
-  <div class="address"><a href="https://www.redfin.com/MA/Framingham/11-Baiting-Brook-Rd-01701/home/174889608" target="_blank">11 Baiting Brook Rd, Framingham, MA, 01701</a></div>
-  <div class="year">Built: 2021</div>
-  <div class="tax">Est. tax/yr: $16,142 <span class="tax-rate">(@ $12.66/$1000)</span></div>
-  <div class="footer">3d on market · Condo/Co-op · first seen 2026-06-04</div>
-</div>
-<div class="card">
-  <div class="price">$1,049,000</div>
-  <div class="specs">4 bd / 3.0 ba  ·  3,226 sqft</div>
-  <div class="address"><a href="https://www.redfin.com/MA/Framingham/616-Grove-St-01701/home/11604761" target="_blank">616 Grove St, Framingham, MA, 01701</a></div>
-  <div class="year">Built: 1947</div>
-  <div class="tax">Est. tax/yr: $13,280 <span class="tax-rate">(@ $12.66/$1000)</span></div>
-  <div class="footer">6d on market · Single Family Residential · first seen 2026-06-02</div>
-</div></div><h3>Natick, MA (4)</h3><div class='grid'>
-<div class="card">
-  <div class="price">$1,199,000</div>
-  <div class="specs">4 bd / 3.0 ba  ·  2,802 sqft</div>
-  <div class="address"><a href="https://www.redfin.com/MA/Natick/12-Emerson-St-01760/home/11651757" target="_blank">12 Emerson St, Natick, MA, 01760</a></div>
-  <div class="year">Built: 1953</div>
-  <div class="tax">Est. tax/yr: $14,508 <span class="tax-rate">(@ $12.10/$1000)</span></div>
-  <div class="footer">3d on market · Single Family Residential · first seen 2026-06-05</div>
-</div>
-<div class="card">
-  <div class="price">$979,000</div>
-  <div class="specs">4 bd / 2.0 ba  ·  1,866 sqft</div>
-  <div class="address"><a href="https://www.redfin.com/MA/Natick/62-Bacon-St-01760/home/202128524" target="_blank">62 Bacon St, Natick, MA, 01760</a></div>
-  <div class="year">Built: 1950</div>
-  <div class="tax">Est. tax/yr: $11,846 <span class="tax-rate">(@ $12.10/$1000)</span></div>
-  <div class="footer">4d on market · Single Family Residential · first seen 2026-06-04</div>
-</div>
-<div class="card">
-  <div class="price">$1,495,000</div>
-  <div class="specs">4 bd / 2.5 ba  ·  3,984 sqft</div>
-  <div class="address"><a href="https://www.redfin.com/MA/Natick/3-Joshua-Path-01760/home/11671390" target="_blank">3 Joshua Path, Natick, MA, 01720</a></div>
-  <div class="year">Built: 1998</div>
-  <div class="tax">Est. tax/yr: $18,090 <span class="tax-rate">(@ $12.10/$1000)</span></div>
-  <div class="footer">4d on market · Single Family Residential · first seen 2026-06-04</div>
-</div>
-<div class="card">
-  <div class="price">$995,000</div>
-  <div class="specs">3 bd / 2.5 ba  ·  2,268 sqft</div>
-  <div class="address"><a href="https://www.redfin.com/MA/Natick/7-Westview-Ave-01760/unit-7/home/77503323" target="_blank">7 Westview Ave #7, Natick, MA, 01760</a></div>
-  <div class="year">Built: 2006</div>
-  <div class="tax">Est. tax/yr: $12,040 <span class="tax-rate">(@ $12.10/$1000)</span></div>
-  <div class="footer">38d on market · Townhouse · first seen 2026-06-03</div>
-</div></div><h3>Waltham, MA (6)</h3><div class='grid'>
-<div class="card">
-  <div class="price">$1,100,000</div>
-  <div class="specs">3 bd / 3.5 ba  ·  2,704 sqft</div>
-  <div class="address"><a href="https://www.redfin.com/MA/North-Waltham/153-Bishops-Forest-Dr-02452/unit-153/home/202149252" target="_blank">153 Bishops Forest Dr #153, North Waltham, MA, 02452</a></div>
-  <div class="year">Built: 1995</div>
-  <div class="tax">Est. tax/yr: $11,396 <span class="tax-rate">(@ $10.36/$1000)</span></div>
-  <div class="footer">2d on market · Townhouse · first seen 2026-06-06</div>
-</div>
-<div class="card">
-  <div class="price">$939,000</div>
-  <div class="specs">3 bd / 2.0 ba  ·  2,585 sqft</div>
-  <div class="address"><a href="https://www.redfin.com/MA/Waltham/61-Canterbury-Rd-02453/home/11809699" target="_blank">61 Canterbury Rd, Waltham, MA, 02453</a></div>
-  <div class="year">Built: 1983</div>
-  <div class="tax">Est. tax/yr: $9,728 <span class="tax-rate">(@ $10.36/$1000)</span></div>
-  <div class="footer">3d on market · Single Family Residential · first seen 2026-06-05</div>
-</div>
-<div class="card">
-  <div class="price">$1,149,000</div>
-  <div class="specs">3 bd / 2.0 ba  ·  2,156 sqft</div>
-  <div class="address"><a href="https://www.redfin.com/MA/Waltham/74-Rose-Hill-Way-02453/home/11809579" target="_blank">74 Rose Hill Way, Waltham, MA, 02453</a></div>
-  <div class="year">Built: 1940</div>
-  <div class="tax">Est. tax/yr: $11,904 <span class="tax-rate">(@ $10.36/$1000)</span></div>
-  <div class="footer">2d on market · Single Family Residential · first seen 2026-06-05</div>
-</div>
-<div class="card">
-  <div class="price">$1,125,000</div>
-  <div class="specs">3 bd / 3.0 ba  ·  2,682 sqft</div>
-  <div class="address"><a href="https://www.redfin.com/MA/Waltham/20-Riverview-Ave-02453/home/11819163" target="_blank">20 Riverview Ave, Waltham, MA, 02453</a></div>
-  <div class="year">Built: 1910</div>
-  <div class="tax">Est. tax/yr: $11,655 <span class="tax-rate">(@ $10.36/$1000)</span></div>
-  <div class="footer">4d on market · Single Family Residential · first seen 2026-06-04</div>
-</div>
-<div class="card">
-  <div class="price">$999,999</div>
-  <div class="specs">3 bd / 2.5 ba  ·  2,549 sqft</div>
-  <div class="address"><a href="https://www.redfin.com/MA/Waltham/24-Blossom-St-02451/home/11820793" target="_blank">24 Blossom St, Waltham, MA, 02451</a></div>
-  <div class="year">Built: 2000</div>
-  <div class="tax">Est. tax/yr: $10,360 <span class="tax-rate">(@ $10.36/$1000)</span></div>
-  <div class="footer">5d on market · Single Family Residential · first seen 2026-06-03</div>
-</div>
-<div class="card">
-  <div class="price">$1,095,000</div>
-  <div class="specs">3 bd / 2.0 ba  ·  2,831 sqft</div>
-  <div class="address"><a href="https://www.redfin.com/MA/Waltham/38-Greenwood-Ln-02451/home/11806427" target="_blank">38 Greenwood Ln, Waltham, MA, 02451</a></div>
-  <div class="year">Built: 1958</div>
-  <div class="tax">Est. tax/yr: $11,344 <span class="tax-rate">(@ $10.36/$1000)</span></div>
-  <div class="footer">4d on market · Single Family Residential · first seen 2026-06-03</div>
-</div></div>
-<h2>Burlington, MA (5)</h2><div class='grid'>
-<div class="card">
-  <div class="price">$1,375,000</div>
-  <div class="specs">5 bd / 4.0 ba  ·  5,223 sqft</div>
-  <div class="address"><a href="https://www.redfin.com/MA/Burlington/12-Corcoran-Rd-01803/home/11548181" target="_blank">12 Corcoran Rd, Burlington, MA, 01803</a></div>
-  <div class="year">Built: 2003</div>
-  <div class="tax">Est. tax/yr: $12,128 <span class="tax-rate">(@ $8.82/$1000)</span></div>
-  <div class="footer">3d on market · Single Family Residential · first seen 2026-06-05</div>
-</div>
-<div class="card">
-  <div class="price">$1,050,000</div>
-  <div class="specs">4 bd / 3.5 ba  ·  3,540 sqft</div>
-  <div class="address"><a href="https://www.redfin.com/MA/Burlington/5-Williams-Cir-01803/home/8450340" target="_blank">5 Williams Cir, Burlington, MA, 01803</a></div>
-  <div class="year">Built: 1960</div>
-  <div class="tax">Est. tax/yr: $9,261 <span class="tax-rate">(@ $8.82/$1000)</span></div>
-  <div class="footer">9d on market · Single Family Residential · first seen 2026-05-28</div>
-</div>
-<div class="card">
-  <div class="price">$1,249,000</div>
-  <div class="specs">4 bd / 4.0 ba  ·  2,687 sqft</div>
-  <div class="address"><a href="https://www.redfin.com/MA/Burlington/6-Fairlawn-Ave-01803/home/39926899" target="_blank">6 Fairlawn, Burlington, MA, 01803</a></div>
-  <div class="year">Built: 2009</div>
-  <div class="tax">Est. tax/yr: $11,016 <span class="tax-rate">(@ $8.82/$1000)</span></div>
-  <div class="footer">37d on market · Single Family Residential · first seen 2026-05-24</div>
-</div>
-<div class="card">
-  <div class="price">$949,900</div>
-  <div class="specs">4 bd / 2.0 ba  ·  2,007 sqft</div>
-  <div class="address"><a href="https://www.redfin.com/MA/Burlington/20-Alma-Rd-01803/home/8441377" target="_blank">20 Alma Rd, Burlington, MA, 01803</a></div>
-  <div class="year">Built: 1951</div>
-  <div class="tax">Est. tax/yr: $8,378 <span class="tax-rate">(@ $8.82/$1000)</span></div>
-  <div class="footer">91d on market · Single Family Residential · first seen 2026-05-28</div>
-</div>
-<div class="card">
-  <div class="price">$979,999</div>
-  <div class="specs">3 bd / 2.5 ba  ·  2,672 sqft</div>
-  <div class="address"><a href="https://www.redfin.com/MA/Burlington/210-Winn-St-01803/home/8453424" target="_blank">210 Winn St, Burlington, MA, 01803</a></div>
-  <div class="year">Built: 1971</div>
-  <div class="tax">Est. tax/yr: $8,644 <span class="tax-rate">(@ $8.82/$1000)</span></div>
-  <div class="footer">233d on market · Single Family Residential · first seen 2026-05-28</div>
-</div></div>
-<h2>Framingham, MA (11)</h2><div class='grid'>
-<div class="card">
-  <div class="price">$1,275,000<span class="new-build">New build</span></div>
-  <div class="specs">3 bd / 3.0 ba  ·  2,559 sqft</div>
-  <div class="address"><a href="https://www.redfin.com/MA/Framingham/11-Baiting-Brook-Rd-01701/home/174889608" target="_blank">11 Baiting Brook Rd, Framingham, MA, 01701</a></div>
-  <div class="year">Built: 2021</div>
-  <div class="tax">Est. tax/yr: $16,142 <span class="tax-rate">(@ $12.66/$1000)</span></div>
-  <div class="footer">3d on market · Condo/Co-op · first seen 2026-06-04</div>
-</div>
-<div class="card">
-  <div class="price">$1,049,000</div>
-  <div class="specs">4 bd / 3.5 ba  ·  3,300 sqft</div>
-  <div class="address"><a href="https://www.redfin.com/MA/Framingham/92-Flanagan-Dr-01701/home/11641063" target="_blank">92 Flanagan Dr, Framingham, MA, 01701</a></div>
-  <div class="year">Built: 1981</div>
-  <div class="tax">Est. tax/yr: $13,280 <span class="tax-rate">(@ $12.66/$1000)</span></div>
-  <div class="footer">4d on market · Single Family Residential · first seen 2026-06-04</div>
-</div>
-<div class="card">
-  <div class="price">$1,049,000</div>
-  <div class="specs">4 bd / 3.0 ba  ·  3,226 sqft</div>
-  <div class="address"><a href="https://www.redfin.com/MA/Framingham/616-Grove-St-01701/home/11604761" target="_blank">616 Grove St, Framingham, MA, 01701</a></div>
-  <div class="year">Built: 1947</div>
-  <div class="tax">Est. tax/yr: $13,280 <span class="tax-rate">(@ $12.66/$1000)</span></div>
-  <div class="footer">6d on market · Single Family Residential · first seen 2026-06-02</div>
-</div>
-<div class="card">
-  <div class="price">$1,099,000</div>
-  <div class="specs">3 bd / 2.5 ba  ·  2,626 sqft</div>
-  <div class="address"><a href="https://www.redfin.com/MA/Framingham/61-Indian-Head-Rd-01701/home/11630174" target="_blank">61 Indian Head Rd, Framingham, MA, 01701</a></div>
-  <div class="year">Built: 1999</div>
-  <div class="tax">Est. tax/yr: $13,913 <span class="tax-rate">(@ $12.66/$1000)</span></div>
-  <div class="footer">12d on market · Single Family Residential · first seen 2026-05-27</div>
-</div>
-<div class="card">
-  <div class="price">$1,175,000</div>
-  <div class="specs">6 bd / 4.0 ba  ·  3,858 sqft</div>
-  <div class="address"><a href="https://www.redfin.com/MA/Framingham/15-Major-Hale-Dr-01701/home/11645256" target="_blank">15 Major Hale Dr, Framingham, MA, 01701</a></div>
-  <div class="year">Built: 1993</div>
-  <div class="tax">Est. tax/yr: $14,876 <span class="tax-rate">(@ $12.66/$1000)</span></div>
-  <div class="footer">15d on market · Single Family Residential · first seen 2026-05-29</div>
-</div>
-<div class="card">
-  <div class="price">$925,000<span class="new-build">New build</span></div>
-  <div class="specs">3 bd / 2.5 ba  ·  2,160 sqft</div>
-  <div class="address"><a href="https://www.redfin.com/MA/Framingham/17-Russell-Rd-01702/home/27783950" target="_blank">17 Russell Rd, Framingham, MA, 01702</a></div>
-  <div class="year">Built: 2010</div>
-  <div class="tax">Est. tax/yr: $11,710 <span class="tax-rate">(@ $12.66/$1000)</span></div>
-  <div class="footer">24d on market · Single Family Residential · first seen 2026-05-24</div>
-</div>
-<div class="card">
-  <div class="price">$999,900</div>
-  <div class="specs">4 bd / 2.5 ba  ·  3,572 sqft</div>
-  <div class="address"><a href="https://www.redfin.com/MA/Framingham/62-Ledgewood-Rd-01701/home/11634354" target="_blank">62 Ledgewood Rd, Framingham, MA, 01701</a></div>
-  <div class="year">Built: 1976</div>
-  <div class="tax">Est. tax/yr: $12,659 <span class="tax-rate">(@ $12.66/$1000)</span></div>
-  <div class="footer">44d on market · Single Family Residential · first seen 2026-05-28</div>
-</div>
-<div class="card">
-  <div class="price">$998,000</div>
-  <div class="specs">3 bd / 2.5 ba  ·  2,588 sqft</div>
-  <div class="address"><a href="https://www.redfin.com/MA/Framingham/106-Danforth-St-01701/home/11610907" target="_blank">106 Danforth St, Framingham, MA, 01701</a></div>
-  <div class="year">Built: 1994</div>
-  <div class="tax">Est. tax/yr: $12,635 <span class="tax-rate">(@ $12.66/$1000)</span></div>
-  <div class="footer">67d on market · Single Family Residential · first seen 2026-05-24</div>
-</div>
-<div class="card">
-  <div class="price">$949,000<span class="new-build">New build</span></div>
-  <div class="specs">4 bd / 2.5 ba  ·  2,939 sqft</div>
-  <div class="address"><a href="https://www.redfin.com/MA/Framingham/129-Dennison-Ave-01702/home/67988814" target="_blank">129 Dennison Ave, Framingham, MA, 01702</a></div>
-  <div class="year">Built: 2016</div>
-  <div class="tax">Est. tax/yr: $12,014 <span class="tax-rate">(@ $12.66/$1000)</span></div>
-  <div class="footer">70d on market · Single Family Residential · first seen 2026-05-24</div>
-</div>
-<div class="card">
-  <div class="price">$1,125,000</div>
-  <div class="specs">4 bd / 3.5 ba  ·  3,365 sqft</div>
-  <div class="address"><a href="https://www.redfin.com/MA/Framingham/576-Grove-St-01701/home/11604752" target="_blank">576 Grove St, Framingham, MA, 01701</a></div>
-  <div class="year">Built: 1956</div>
-  <div class="tax">Est. tax/yr: $14,242 <span class="tax-rate">(@ $12.66/$1000)</span></div>
-  <div class="footer">79d on market · Single Family Residential · first seen 2026-05-28</div>
-</div>
-<div class="card">
-  <div class="price">$1,279,000</div>
-  <div class="specs">4 bd / 3.0 ba  ·  4,256 sqft</div>
-  <div class="address"><a href="https://www.redfin.com/MA/Framingham/620-Edmands-Rd-01701/home/11620186" target="_blank">620 Edmands Rd, Framingham, MA, 01701</a></div>
-  <div class="year">Built: 1971</div>
-  <div class="tax">Est. tax/yr: $16,192 <span class="tax-rate">(@ $12.66/$1000)</span></div>
-  <div class="footer">163d on market · Single Family Residential · first seen 2026-05-28</div>
-</div></div>
-<h2>Nashua, NH (3)</h2><div class='grid'>
-<div class="card">
-  <div class="price">$989,900<span class="new-build">New build</span></div>
-  <div class="specs">3 bd / 2.5 ba  ·  2,433 sqft</div>
-  <div class="address"><a href="https://www.redfin.com/NH/Nashua/68-Farmington-Rd-03060/home/88087472" target="_blank">68 Farmington Rd, Nashua, NH, 03060</a></div>
-  <div class="year">Built: 2026</div>
-  <div class="tax">Est. tax/yr: $17,145 <span class="tax-rate">(@ $17.32/$1000)</span></div>
-  <div class="footer">25d on market · Single Family Residential · first seen 2026-05-24</div>
-</div>
-<div class="card">
-  <div class="price">$995,900</div>
-  <div class="specs">3 bd / 2.5 ba  ·  2,160 sqft</div>
-  <div class="address"><a href="https://www.redfin.com/NH/Nashua/18-Boylston-Ave-03064/home/112799479" target="_blank">18 Boylston Ave, Nashua, NH, 03064</a></div>
-  <div class="year">Built: unknown</div>
-  <div class="tax">Est. tax/yr: $17,249 <span class="tax-rate">(@ $17.32/$1000)</span></div>
-  <div class="footer">56d on market · Single Family Residential · first seen 2026-05-24</div>
-</div>
-<div class="card">
-  <div class="price">$940,000</div>
-  <div class="specs">4 bd / 2.5 ba  ·  3,020 sqft</div>
-  <div class="address"><a href="https://www.redfin.com/NH/Nashua/70-Concord-St-03064/home/88090712" target="_blank">70 concord St, Nashua, NH, 03064</a></div>
-  <div class="year">Built: 1888</div>
-  <div class="tax">Est. tax/yr: $16,281 <span class="tax-rate">(@ $17.32/$1000)</span></div>
-  <div class="footer">170d on market · Single Family Residential · first seen 2026-05-28</div>
-</div></div>
-<h2>Natick, MA (22)</h2><div class='grid'>
-<div class="card">
-  <div class="price">$1,199,000</div>
-  <div class="specs">4 bd / 3.0 ba  ·  2,802 sqft</div>
-  <div class="address"><a href="https://www.redfin.com/MA/Natick/12-Emerson-St-01760/home/11651757" target="_blank">12 Emerson St, Natick, MA, 01760</a></div>
-  <div class="year">Built: 1953</div>
-  <div class="tax">Est. tax/yr: $14,508 <span class="tax-rate">(@ $12.10/$1000)</span></div>
-  <div class="footer">3d on market · Single Family Residential · first seen 2026-06-05</div>
-</div>
-<div class="card">
-  <div class="price">$1,125,000<span class="new-build">New build</span></div>
-  <div class="specs">3 bd / 2.5 ba  ·  2,304 sqft</div>
-  <div class="address"><a href="https://www.redfin.com/MA/Natick/8-N-Pleasant-St-01760/unit-8/home/183621609" target="_blank">8 N Pleasant St #8, Natick, MA, 01760</a></div>
-  <div class="year">Built: 2022</div>
-  <div class="tax">Est. tax/yr: $13,612 <span class="tax-rate">(@ $12.10/$1000)</span></div>
-  <div class="footer">4d on market · Single Family Residential · first seen 2026-05-24</div>
-</div>
-<div class="card">
-  <div class="price">$1,439,000</div>
-  <div class="specs">4 bd / 2.5 ba  ·  3,164 sqft</div>
-  <div class="address"><a href="https://www.redfin.com/MA/Natick/11-Irving-Rd-01760/home/11649434" target="_blank">11 Irving Rd, Natick, MA, 01760</a></div>
-  <div class="year">Built: 2006</div>
-  <div class="tax">Est. tax/yr: $17,412 <span class="tax-rate">(@ $12.10/$1000)</span></div>
-  <div class="footer">4d on market · Single Family Residential · first seen 2026-05-28</div>
-</div>
-<div class="card">
-  <div class="price">$1,495,000</div>
-  <div class="specs">4 bd / 2.5 ba  ·  3,984 sqft</div>
-  <div class="address"><a href="https://www.redfin.com/MA/Natick/3-Joshua-Path-01760/home/11671390" target="_blank">3 Joshua Path, Natick, MA, 01720</a></div>
-  <div class="year">Built: 1998</div>
-  <div class="tax">Est. tax/yr: $18,090 <span class="tax-rate">(@ $12.10/$1000)</span></div>
-  <div class="footer">4d on market · Single Family Residential · first seen 2026-06-04</div>
-</div>
-<div class="card">
-  <div class="price">$979,000</div>
-  <div class="specs">4 bd / 2.0 ba  ·  1,866 sqft</div>
-  <div class="address"><a href="https://www.redfin.com/MA/Natick/62-Bacon-St-01760/home/202128524" target="_blank">62 Bacon St, Natick, MA, 01760</a></div>
-  <div class="year">Built: 1950</div>
-  <div class="tax">Est. tax/yr: $11,846 <span class="tax-rate">(@ $12.10/$1000)</span></div>
-  <div class="footer">4d on market · Single Family Residential · first seen 2026-06-04</div>
-</div>
-<div class="card">
-  <div class="price">$1,380,000</div>
-  <div class="specs">4 bd / 3.0 ba  ·  2,818 sqft</div>
-  <div class="address"><a href="https://www.redfin.com/MA/Natick/7-Whitney-Cir-01760/home/11648902" target="_blank">7 Whitney Cir, Natick, MA, 01760</a></div>
-  <div class="year">Built: 1995</div>
-  <div class="tax">Est. tax/yr: $16,698 <span class="tax-rate">(@ $12.10/$1000)</span></div>
-  <div class="footer">6d on market · Single Family Residential · first seen 2026-05-24</div>
-</div>
-<div class="card">
-  <div class="price">$1,475,000<span class="new-build">New build</span></div>
-  <div class="specs">4 bd / 2.5 ba  ·  3,206 sqft</div>
-  <div class="address"><a href="https://www.redfin.com/MA/Natick/3-Beverly-Rd-01760/home/11652836" target="_blank">3 Beverly Rd, Natick, MA, 01760</a></div>
-  <div class="year">Built: 2016</div>
-  <div class="tax">Est. tax/yr: $17,848 <span class="tax-rate">(@ $12.10/$1000)</span></div>
-  <div class="footer">6d on market · Single Family Residential · first seen 2026-05-28</div>
-</div>
-<div class="card">
-  <div class="price">$1,050,000</div>
-  <div class="specs">3 bd / 2.5 ba  ·  2,118 sqft</div>
-  <div class="address"><a href="https://www.redfin.com/MA/Natick/75-W-Central-St-01760/home/11663914" target="_blank">75 W Central St, Natick, MA, 01760</a></div>
-  <div class="year">Built: 1935</div>
-  <div class="tax">Est. tax/yr: $12,705 <span class="tax-rate">(@ $12.10/$1000)</span></div>
-  <div class="footer">6d on market · Single Family Residential · first seen 2026-05-28</div>
-</div>
-<div class="card">
-  <div class="price">$974,000<span class="new-build">New build</span></div>
-  <div class="specs">4 bd / 3.5 ba  ·  2,117 sqft</div>
-  <div class="address"><a href="https://www.redfin.com/MA/Natick/3-Wilson-St-01760/unit-3/home/202064265" target="_blank">3 Wilson St #3, Natick, MA, 01760</a></div>
-  <div class="year">Built: 2025</div>
-  <div class="tax">Est. tax/yr: $11,785 <span class="tax-rate">(@ $12.10/$1000)</span></div>
-  <div class="footer">9d on market · Townhouse · first seen 2026-05-30</div>
-</div>
-<div class="card">
-  <div class="price">$1,049,900</div>
-  <div class="specs">4 bd / 2.5 ba  ·  2,393 sqft</div>
-  <div class="address"><a href="https://www.redfin.com/MA/Natick/169-Woodland-St-01760/home/11670028" target="_blank">169 Woodland St, Natick, MA, 01760</a></div>
-  <div class="year">Built: 1953</div>
-  <div class="tax">Est. tax/yr: $12,704 <span class="tax-rate">(@ $12.10/$1000)</span></div>
-  <div class="footer">14d on market · Single Family Residential · first seen 2026-05-28</div>
-</div>
-<div class="card">
-  <div class="price">$950,000</div>
-  <div class="specs">4 bd / 2.5 ba  ·  2,802 sqft</div>
-  <div class="address"><a href="https://www.redfin.com/MA/Natick/4-Crescent-St-01760/home/11676408" target="_blank">4 Crescent St, Natick, MA, 01760</a></div>
-  <div class="year">Built: 1942</div>
-  <div class="tax">Est. tax/yr: $11,495 <span class="tax-rate">(@ $12.10/$1000)</span></div>
-  <div class="footer">15d on market · Single Family Residential · first seen 2026-05-28</div>
-</div>
-<div class="card">
-  <div class="price">$995,000</div>
-  <div class="specs">4 bd / 2.5 ba  ·  2,109 sqft</div>
-  <div class="address"><a href="https://www.redfin.com/MA/Natick/20-Pine-St-01760/home/11648588" target="_blank">20 Pine St, Natick, MA, 01760</a></div>
-  <div class="year">Built: 1900</div>
-  <div class="tax">Est. tax/yr: $12,040 <span class="tax-rate">(@ $12.10/$1000)</span></div>
-  <div class="footer">19d on market · Single Family Residential · first seen 2026-05-28</div>
-</div>
-<div class="card">
-  <div class="price">$1,129,000</div>
-  <div class="specs">3 bd / 2.5 ba  ·  2,126 sqft</div>
-  <div class="address"><a href="https://www.redfin.com/MA/Natick/20-Eastleigh-Ln-01760/home/11670934" target="_blank">20 Eastleigh Ln, Natick, MA, 01760</a></div>
-  <div class="year">Built: 1992</div>
-  <div class="tax">Est. tax/yr: $13,661 <span class="tax-rate">(@ $12.10/$1000)</span></div>
-  <div class="footer">23d on market · Single Family Residential · first seen 2026-05-24</div>
-</div>
-<div class="card">
-  <div class="price">$995,000</div>
-  <div class="specs">3 bd / 2.5 ba  ·  2,268 sqft</div>
-  <div class="address"><a href="https://www.redfin.com/MA/Natick/7-Westview-Ave-01760/unit-7/home/77503323" target="_blank">7 Westview Ave #7, Natick, MA, 01760</a></div>
-  <div class="year">Built: 2006</div>
-  <div class="tax">Est. tax/yr: $12,040 <span class="tax-rate">(@ $12.10/$1000)</span></div>
-  <div class="footer">33d on market · Single Family Residential · first seen 2026-05-24</div>
-</div>
-<div class="card">
-  <div class="price">$1,199,000</div>
-  <div class="specs">5 bd / 2.5 ba  ·  2,669 sqft</div>
-  <div class="address"><a href="https://www.redfin.com/MA/Natick/89-Pond-St-01760/home/11663688" target="_blank">89 Pond St, Natick, MA, 01760</a></div>
-  <div class="year">Built: 1870</div>
-  <div class="tax">Est. tax/yr: $14,508 <span class="tax-rate">(@ $12.10/$1000)</span></div>
-  <div class="footer">37d on market · Single Family Residential · first seen 2026-05-28</div>
-</div>
-<div class="card">
-  <div class="price">$995,000</div>
-  <div class="specs">3 bd / 2.5 ba  ·  2,268 sqft</div>
-  <div class="address"><a href="https://www.redfin.com/MA/Natick/7-Westview-Ave-01760/unit-7/home/77503323" target="_blank">7 Westview Ave #7, Natick, MA, 01760</a></div>
-  <div class="year">Built: 2006</div>
-  <div class="tax">Est. tax/yr: $12,040 <span class="tax-rate">(@ $12.10/$1000)</span></div>
-  <div class="footer">38d on market · Townhouse · first seen 2026-06-03</div>
-</div>
-<div class="card">
-  <div class="price">$998,000<span class="new-build">New build</span></div>
-  <div class="specs">3 bd / 2.5 ba  ·  2,746 sqft</div>
-  <div class="address"><a href="https://www.redfin.com/MA/Natick/265-Bacon-St-01760/unit-B/home/143080631" target="_blank">265B Bacon St, Natick, MA, 01760</a></div>
-  <div class="year">Built: 2017</div>
-  <div class="tax">Est. tax/yr: $12,076 <span class="tax-rate">(@ $12.10/$1000)</span></div>
-  <div class="footer">41d on market · Single Family Residential · first seen 2026-05-24</div>
-</div>
-<div class="card">
-  <div class="price">$1,249,900</div>
-  <div class="specs">5 bd / 3.5 ba  ·  2,864 sqft</div>
-  <div class="address"><a href="https://www.redfin.com/MA/Natick/48-Bradford-Rd-01760/home/11650510" target="_blank">48 Bradford Rd, Natick, MA, 01760</a></div>
-  <div class="year">Built: 1953</div>
-  <div class="tax">Est. tax/yr: $15,124 <span class="tax-rate">(@ $12.10/$1000)</span></div>
-  <div class="footer">56d on market · Single Family Residential · first seen 2026-05-28</div>
-</div>
-<div class="card">
-  <div class="price">$1,035,000</div>
-  <div class="specs">3 bd / 2.5 ba  ·  2,872 sqft</div>
-  <div class="address"><a href="https://www.redfin.com/MA/Natick/22-Westview-Rd-01760/unit-22/home/11920978" target="_blank">22 Westview Rd #22, Natick, MA, 01760</a></div>
-  <div class="year">Built: 2006</div>
-  <div class="tax">Est. tax/yr: $12,524 <span class="tax-rate">(@ $12.10/$1000)</span></div>
-  <div class="footer">59d on market · Townhouse · first seen 2026-05-24</div>
-</div>
-<div class="card">
-  <div class="price">$1,199,900</div>
-  <div class="specs">4 bd / 3.0 ba  ·  2,446 sqft</div>
-  <div class="address"><a href="https://www.redfin.com/MA/Natick/52-Washington-St-01760/home/11659657" target="_blank">52 Washington St, Natick, MA, 01760</a></div>
-  <div class="year">Built: 1900</div>
-  <div class="tax">Est. tax/yr: $14,519 <span class="tax-rate">(@ $12.10/$1000)</span></div>
-  <div class="footer">81d on market · Single Family Residential · first seen 2026-05-28</div>
-</div>
-<div class="card">
-  <div class="price">$1,495,000</div>
-  <div class="specs">4 bd / 3.5 ba  ·  4,038 sqft</div>
-  <div class="address"><a href="https://www.redfin.com/MA/Natick/18-Phillips-Pond-Rd-01760/unit-18/home/11920055" target="_blank">18 Phillips Pond Rd #18, Natick, MA, 01760</a></div>
-  <div class="year">Built: 1989</div>
-  <div class="tax">Est. tax/yr: $18,090 <span class="tax-rate">(@ $12.10/$1000)</span></div>
-  <div class="footer">255d on market · Single Family Residential · first seen 2026-05-28</div>
-</div>
-<div class="card">
-  <div class="price">$974,000<span class="new-build">New build</span></div>
-  <div class="specs">4 bd / 3.5 ba  ·  2,117 sqft</div>
-  <div class="address"><a href="https://www.redfin.com/MA/Natick/3B-Wilson-St-01760/unit-3B/home/197780431" target="_blank">3B Wilson St Unit 3B, Natick, MA, 01760</a></div>
-  <div class="year">Built: 2025</div>
-  <div class="tax">Est. tax/yr: $11,785 <span class="tax-rate">(@ $12.10/$1000)</span></div>
-  <div class="footer">262d on market · Townhouse · first seen 2026-05-24</div>
-</div></div>
-<h2>Waltham, MA (26)</h2><div class='grid'>
-<div class="card">
-  <div class="price">$1,149,000</div>
-  <div class="specs">3 bd / 2.0 ba  ·  2,156 sqft</div>
-  <div class="address"><a href="https://www.redfin.com/MA/Waltham/74-Rose-Hill-Way-02453/home/11809579" target="_blank">74 Rose Hill Way, Waltham, MA, 02453</a></div>
-  <div class="year">Built: 1940</div>
-  <div class="tax">Est. tax/yr: $11,904 <span class="tax-rate">(@ $10.36/$1000)</span></div>
-  <div class="footer">2d on market · Single Family Residential · first seen 2026-06-05</div>
-</div>
-<div class="card">
-  <div class="price">$1,100,000</div>
-  <div class="specs">3 bd / 3.5 ba  ·  2,704 sqft</div>
-  <div class="address"><a href="https://www.redfin.com/MA/North-Waltham/153-Bishops-Forest-Dr-02452/unit-153/home/202149252" target="_blank">153 Bishops Forest Dr #153, North Waltham, MA, 02452</a></div>
-  <div class="year">Built: 1995</div>
-  <div class="tax">Est. tax/yr: $11,396 <span class="tax-rate">(@ $10.36/$1000)</span></div>
-  <div class="footer">2d on market · Townhouse · first seen 2026-06-06</div>
-</div>
-<div class="card">
-  <div class="price">$939,000</div>
-  <div class="specs">3 bd / 2.0 ba  ·  2,585 sqft</div>
-  <div class="address"><a href="https://www.redfin.com/MA/Waltham/61-Canterbury-Rd-02453/home/11809699" target="_blank">61 Canterbury Rd, Waltham, MA, 02453</a></div>
-  <div class="year">Built: 1983</div>
-  <div class="tax">Est. tax/yr: $9,728 <span class="tax-rate">(@ $10.36/$1000)</span></div>
-  <div class="footer">3d on market · Single Family Residential · first seen 2026-06-05</div>
-</div>
-<div class="card">
-  <div class="price">$1,095,000</div>
-  <div class="specs">3 bd / 2.0 ba  ·  2,831 sqft</div>
-  <div class="address"><a href="https://www.redfin.com/MA/Waltham/38-Greenwood-Ln-02451/home/11806427" target="_blank">38 Greenwood Ln, Waltham, MA, 02451</a></div>
-  <div class="year">Built: 1958</div>
-  <div class="tax">Est. tax/yr: $11,344 <span class="tax-rate">(@ $10.36/$1000)</span></div>
-  <div class="footer">4d on market · Single Family Residential · first seen 2026-06-03</div>
-</div>
-<div class="card">
-  <div class="price">$1,125,000</div>
-  <div class="specs">3 bd / 3.0 ba  ·  2,682 sqft</div>
-  <div class="address"><a href="https://www.redfin.com/MA/Waltham/20-Riverview-Ave-02453/home/11819163" target="_blank">20 Riverview Ave, Waltham, MA, 02453</a></div>
-  <div class="year">Built: 1910</div>
-  <div class="tax">Est. tax/yr: $11,655 <span class="tax-rate">(@ $10.36/$1000)</span></div>
-  <div class="footer">4d on market · Single Family Residential · first seen 2026-06-04</div>
-</div>
-<div class="card">
-  <div class="price">$999,999</div>
-  <div class="specs">3 bd / 2.5 ba  ·  2,549 sqft</div>
-  <div class="address"><a href="https://www.redfin.com/MA/Waltham/24-Blossom-St-02451/home/11820793" target="_blank">24 Blossom St, Waltham, MA, 02451</a></div>
-  <div class="year">Built: 2000</div>
-  <div class="tax">Est. tax/yr: $10,360 <span class="tax-rate">(@ $10.36/$1000)</span></div>
-  <div class="footer">5d on market · Single Family Residential · first seen 2026-06-03</div>
-</div>
-<div class="card">
-  <div class="price">$1,049,000<span class="new-build">New build</span></div>
-  <div class="specs">3 bd / 2.5 ba  ·  2,458 sqft</div>
-  <div class="address"><a href="https://www.redfin.com/MA/Waltham/61-Gale-St-02453/unit-1/home/179768378" target="_blank">61 Gale St #1, Waltham, MA, 02453</a></div>
-  <div class="year">Built: 2021</div>
-  <div class="tax">Est. tax/yr: $10,868 <span class="tax-rate">(@ $10.36/$1000)</span></div>
-  <div class="footer">10d on market · Townhouse · first seen 2026-05-29</div>
-</div>
-<div class="card">
-  <div class="price">$1,129,000<span class="new-build">New build</span></div>
-  <div class="specs">4 bd / 3.0 ba  ·  2,500 sqft</div>
-  <div class="address"><a href="https://www.redfin.com/MA/Waltham/43-Hall-St-02453/unit-1/home/167722145" target="_blank">43 Hall St #1, Waltham, MA, 02453</a></div>
-  <div class="year">Built: 2016</div>
-  <div class="tax">Est. tax/yr: $11,696 <span class="tax-rate">(@ $10.36/$1000)</span></div>
-  <div class="footer">11d on market · Townhouse · first seen 2026-05-28</div>
-</div>
-<div class="card">
-  <div class="price">$949,999</div>
-  <div class="specs">3 bd / 3.5 ba  ·  2,420 sqft</div>
-  <div class="address"><a href="https://www.redfin.com/MA/Waltham/243-Bishops-Forest-Dr-02452/unit-243/home/180948019" target="_blank">243 Bishops Forest Dr #243, Waltham, MA, 02452</a></div>
-  <div class="year">Built: 1989</div>
-  <div class="tax">Est. tax/yr: $9,842 <span class="tax-rate">(@ $10.36/$1000)</span></div>
-  <div class="footer">12d on market · Townhouse · first seen 2026-05-28</div>
-</div>
-<div class="card">
-  <div class="price">$1,069,000<span class="new-build">New build</span></div>
-  <div class="specs">4 bd / 2.5 ba  ·  2,150 sqft</div>
-  <div class="address"><a href="https://www.redfin.com/MA/Waltham/67-Ash-St-02453/home/11817829" target="_blank">67 Ash St, Waltham, MA, 02453</a></div>
-  <div class="year">Built: 2018</div>
-  <div class="tax">Est. tax/yr: $11,075 <span class="tax-rate">(@ $10.36/$1000)</span></div>
-  <div class="footer">13d on market · Single Family Residential · first seen 2026-05-24</div>
-</div>
-<div class="card">
-  <div class="price">$1,295,000<span class="new-build">New build</span></div>
-  <div class="specs">3 bd / 4.5 ba  ·  2,500 sqft</div>
-  <div class="address"><a href="https://www.redfin.com/MA/Waltham/236-Lake-St-02451/home/201546717" target="_blank">236 Lake St, Waltham, MA, 02451</a></div>
-  <div class="year">Built: 2026</div>
-  <div class="tax">Est. tax/yr: $13,416 <span class="tax-rate">(@ $10.36/$1000)</span></div>
-  <div class="footer">17d on market · Single Family Residential · first seen 2026-05-24</div>
-</div>
-<div class="card">
-  <div class="price">$1,130,000</div>
-  <div class="specs">4 bd / 2.5 ba  ·  2,316 sqft</div>
-  <div class="address"><a href="https://www.redfin.com/MA/Waltham/99-Princeton-Ave-02451/home/11437840" target="_blank">99 Princeton Ave, Waltham, MA, 02451</a></div>
-  <div class="year">Built: 2006</div>
-  <div class="tax">Est. tax/yr: $11,707 <span class="tax-rate">(@ $10.36/$1000)</span></div>
-  <div class="footer">18d on market · Single Family Residential · first seen 2026-05-24</div>
-</div>
-<div class="card">
-  <div class="price">$945,000<span class="new-build">New build</span></div>
-  <div class="specs">3 bd / 2.5 ba  ·  1,815 sqft</div>
-  <div class="address"><a href="https://www.redfin.com/MA/Waltham/53-Hiawatha-Ave-02451/home/11802993" target="_blank">53 Hiawatha Ave, Waltham, MA, 02451</a></div>
-  <div class="year">Built: 2010</div>
-  <div class="tax">Est. tax/yr: $9,790 <span class="tax-rate">(@ $10.36/$1000)</span></div>
-  <div class="footer">19d on market · Single Family Residential · first seen 2026-05-24</div>
-</div>
-<div class="card">
-  <div class="price">$1,439,000<span class="new-build">New build</span></div>
-  <div class="specs">4 bd / 3.5 ba  ·  3,765 sqft</div>
-  <div class="address"><a href="https://www.redfin.com/MA/Waltham/165-River-St-02453/unit-2/home/181104384" target="_blank">165 River St #2, Waltham, MA, 02453</a></div>
-  <div class="year">Built: 2022</div>
-  <div class="tax">Est. tax/yr: $14,908 <span class="tax-rate">(@ $10.36/$1000)</span></div>
-  <div class="footer">24d on market · Townhouse · first seen 2026-05-24</div>
-</div>
-<div class="card">
-  <div class="price">$1,350,000<span class="new-build">New build</span></div>
-  <div class="specs">3 bd / 2.5 ba  ·  3,559 sqft</div>
-  <div class="address"><a href="https://www.redfin.com/MA/Waltham/128-Church-St-02452/unit-2/home/113075440" target="_blank">128 Church St #2, Waltham, MA, 02452</a></div>
-  <div class="year">Built: 2015</div>
-  <div class="tax">Est. tax/yr: $13,986 <span class="tax-rate">(@ $10.36/$1000)</span></div>
-  <div class="footer">25d on market · Townhouse · first seen 2026-05-24</div>
-</div>
-<div class="card">
-  <div class="price">$950,000</div>
-  <div class="specs">3 bd / 2.0 ba  ·  3,226 sqft</div>
-  <div class="address"><a href="https://www.redfin.com/MA/Waltham/293-Florence-Rd-02453/home/11816310" target="_blank">293 Florence Rd, Waltham, MA, 02453</a></div>
-  <div class="year">Built: 1921</div>
-  <div class="tax">Est. tax/yr: $9,842 <span class="tax-rate">(@ $10.36/$1000)</span></div>
-  <div class="footer">32d on market · Single Family Residential · first seen 2026-05-28</div>
-</div>
-<div class="card">
-  <div class="price">$1,195,000<span class="new-build">New build</span></div>
-  <div class="specs">4 bd / 3.5 ba  ·  2,957 sqft</div>
-  <div class="address"><a href="https://www.redfin.com/MA/Waltham/138-Myrtle-St-02453/unit-2/home/185518669" target="_blank">138 Myrtle St #2, Waltham, MA, 02453</a></div>
-  <div class="year">Built: 2023</div>
-  <div class="tax">Est. tax/yr: $12,380 <span class="tax-rate">(@ $10.36/$1000)</span></div>
-  <div class="footer">37d on market · Townhouse · first seen 2026-05-24</div>
-</div>
-<div class="card">
-  <div class="price">$1,079,900<span class="new-build">New build</span></div>
-  <div class="specs">4 bd / 3.5 ba  ·  2,600 sqft</div>
-  <div class="address"><a href="https://www.redfin.com/MA/Waltham/172-Bright-St-02453/unit-3/home/113820110" target="_blank">172 Bright St #3, Waltham, MA, 02453</a></div>
-  <div class="year">Built: 2016</div>
-  <div class="tax">Est. tax/yr: $11,188 <span class="tax-rate">(@ $10.36/$1000)</span></div>
-  <div class="footer">39d on market · Townhouse · first seen 2026-05-24</div>
-</div>
-<div class="card">
-  <div class="price">$1,338,000<span class="new-build">New build</span></div>
-  <div class="specs">4 bd / 4.5 ba  ·  3,150 sqft</div>
-  <div class="address"><a href="https://www.redfin.com/MA/Waltham/20-College-Farm-Rd-02451/home/167038079" target="_blank">20 College Farm Rd, Waltham, MA, 02451</a></div>
-  <div class="year">Built: 2022</div>
-  <div class="tax">Est. tax/yr: $13,862 <span class="tax-rate">(@ $10.36/$1000)</span></div>
-  <div class="footer">46d on market · Single Family Residential · first seen 2026-05-24</div>
-</div>
-<div class="card">
-  <div class="price">$945,000</div>
-  <div class="specs">3 bd / 2.5 ba  ·  1,883 sqft</div>
-  <div class="address"><a href="https://www.redfin.com/MA/Waltham/43-Leonard-St-02451/home/11808185" target="_blank">43 Leonard St, Waltham, MA, 02451</a></div>
-  <div class="year">Built: 1900</div>
-  <div class="tax">Est. tax/yr: $9,790 <span class="tax-rate">(@ $10.36/$1000)</span></div>
-  <div class="footer">51d on market · Single Family Residential · first seen 2026-05-28</div>
-</div>
-<div class="card">
-  <div class="price">$1,298,000</div>
-  <div class="specs">3 bd / 2.5 ba  ·  2,835 sqft</div>
-  <div class="address"><a href="https://www.redfin.com/MA/Waltham/174-Forest-St-02452/home/11807003" target="_blank">174 Forest, Waltham, MA, 02452</a></div>
-  <div class="year">Built: 1958</div>
-  <div class="tax">Est. tax/yr: $13,447 <span class="tax-rate">(@ $10.36/$1000)</span></div>
-  <div class="footer">53d on market · Single Family Residential · first seen 2026-05-28</div>
-</div>
-<div class="card">
-  <div class="price">$1,349,900<span class="new-build">New build</span></div>
-  <div class="specs">4 bd / 3.5 ba  ·  3,002 sqft</div>
-  <div class="address"><a href="https://www.redfin.com/MA/Waltham/308-Newton-St-02453/unit-1A/home/196777509" target="_blank">308 Newton St Unit 1A, Waltham, MA, 02453</a></div>
-  <div class="year">Built: 2025</div>
-  <div class="tax">Est. tax/yr: $13,985 <span class="tax-rate">(@ $10.36/$1000)</span></div>
-  <div class="footer">58d on market · Townhouse · first seen 2026-05-24</div>
-</div>
-<div class="card">
-  <div class="price">$1,425,000</div>
-  <div class="specs">5 bd / 3.5 ba  ·  3,480 sqft</div>
-  <div class="address"><a href="https://www.redfin.com/MA/Waltham/113-Temple-Rd-02452/home/11803829" target="_blank">113 Temple Rd, Waltham, MA, 02452</a></div>
-  <div class="year">Built: 1950</div>
-  <div class="tax">Est. tax/yr: $14,763 <span class="tax-rate">(@ $10.36/$1000)</span></div>
-  <div class="footer">59d on market · Single Family Residential · first seen 2026-05-28</div>
-</div>
-<div class="card">
-  <div class="price">$1,217,000<span class="new-build">New build</span></div>
-  <div class="specs">4 bd / 3.5 ba  ·  2,950 sqft</div>
-  <div class="address"><a href="https://www.redfin.com/MA/Waltham/44-Lakeview-Ter-02451/home/11801854" target="_blank">44 Lakeview Ter, Waltham, MA, 02451</a></div>
-  <div class="year">Built: 2026</div>
-  <div class="tax">Est. tax/yr: $12,608 <span class="tax-rate">(@ $10.36/$1000)</span></div>
-  <div class="footer">77d on market · Single Family Residential · first seen 2026-05-24</div>
-</div>
-<div class="card">
-  <div class="price">$1,099,900<span class="new-build">New build</span></div>
-  <div class="specs">4 bd / 3.5 ba  ·  2,200 sqft</div>
-  <div class="address"><a href="https://www.redfin.com/MA/Waltham/89-Hardy-Pond-Rd-02451/home/200381392" target="_blank">89 Hardy Pond Rd, Waltham, MA, 02452</a></div>
-  <div class="year">Built: 2026</div>
-  <div class="tax">Est. tax/yr: $11,395 <span class="tax-rate">(@ $10.36/$1000)</span></div>
-  <div class="footer">121d on market · Single Family Residential · first seen 2026-05-24</div>
-</div>
-<div class="card">
-  <div class="price">$1,300,000</div>
-  <div class="specs">3 bd / 2.5 ba  ·  2,970 sqft</div>
-  <div class="address"><a href="https://www.redfin.com/MA/Waltham/70-School-St-02452/home/11812992" target="_blank">70 School St, Waltham, MA, 02452</a></div>
-  <div class="year">Built: 1775</div>
-  <div class="tax">Est. tax/yr: $13,468 <span class="tax-rate">(@ $10.36/$1000)</span></div>
-  <div class="footer">225d on market · Single Family Residential · first seen 2026-05-28</div>
-</div></div>
+<main class="page">
+  <header class="hero">
+    <div class="hero-content">
+      <p class="eyebrow">Home shortlist</p>
+      <div class="hero-top">
+        <div>
+          <h1>House Search</h1>
+          <p class="hero-copy">67 active listings across 5 towns. <span class="nowrap">$900K&ndash;$1.5M</span> · 3+ bd · 2+ ba.</p>
+        </div>
+        <div class="updated-pill">Updated 2026-06-07</div>
+      </div>
+      <div class="stats">
+        <div class="stat"><span class="stat-label">Listings</span><span class="stat-value">67</span></div>
+        <div class="stat"><span class="stat-label">New this week</span><span class="stat-value">14</span></div>
+        <div class="stat"><span class="stat-label">Price drops</span><span class="stat-value">0</span></div>
+        <div class="stat"><span class="stat-label">Built 2010+</span><span class="stat-value">22</span></div>
+      </div>
+    </div>
+  </header>
+  <div class="content">
+    <section class="section section-new"><div class="section-header"><h2>New in the last 7 days</h2><span class="section-count">14 listings</span></div><div class="town-block"><h3 class="town-heading">Burlington, MA (1)</h3><div class="grid">
+<div class="card is-new">
+  <div class="card-top">
+    <div class="price">$1,375,000</div>
+    
+  </div>
+  <div class="facts"><span class="fact">5 bd</span><span class="fact">4.0 ba</span><span class="fact">5,223 sqft</span></div>
+  <div class="address"><a href="https://www.redfin.com/MA/Burlington/12-Corcoran-Rd-01803/home/11548181" target="_blank" rel="noopener noreferrer">12 Corcoran Rd, Burlington, MA, 01803</a></div>
+  <div class="details">
+    <div>Built: 2003</div>
+    <div class="tax">Est. tax/yr: $12,128 <span class="tax-rate">(@ $8.82/$1000)</span></div>
+    <div class="transit">🚆 5.3 mi · 11 min by car to <span class="station">Wilmington</span></div>
+    <div class="footer">3d on market · Single Family Residential · first seen 2026-06-05</div>
+  </div>
+</div></div></div><div class="town-block"><h3 class="town-heading">Framingham, MA (3)</h3><div class="grid">
+<div class="card is-new">
+  <div class="card-top">
+    <div class="price">$1,049,000</div>
+    
+  </div>
+  <div class="facts"><span class="fact">4 bd</span><span class="fact">3.5 ba</span><span class="fact">3,300 sqft</span></div>
+  <div class="address"><a href="https://www.redfin.com/MA/Framingham/92-Flanagan-Dr-01701/home/11641063" target="_blank" rel="noopener noreferrer">92 Flanagan Dr, Framingham, MA, 01701</a></div>
+  <div class="details">
+    <div>Built: 1981</div>
+    <div class="tax">Est. tax/yr: $13,280 <span class="tax-rate">(@ $12.66/$1000)</span></div>
+    <div class="transit">🚆 5.0 mi · 12 min by car to <span class="station">Framingham</span></div>
+    <div class="footer">4d on market · Single Family Residential · first seen 2026-06-04</div>
+  </div>
+</div>
+<div class="card is-new">
+  <div class="card-top">
+    <div class="price">$1,275,000</div>
+    <div class="badges"><span class="badge new-build">New build</span></div>
+  </div>
+  <div class="facts"><span class="fact">3 bd</span><span class="fact">3.0 ba</span><span class="fact">2,559 sqft</span></div>
+  <div class="address"><a href="https://www.redfin.com/MA/Framingham/11-Baiting-Brook-Rd-01701/home/174889608" target="_blank" rel="noopener noreferrer">11 Baiting Brook Rd, Framingham, MA, 01701</a></div>
+  <div class="details">
+    <div>Built: 2021</div>
+    <div class="tax">Est. tax/yr: $16,142 <span class="tax-rate">(@ $12.66/$1000)</span></div>
+    <div class="transit">🚆 4.7 mi · 11 min by car to <span class="station">Framingham</span></div>
+    <div class="footer">3d on market · Condo/Co-op · first seen 2026-06-04</div>
+  </div>
+</div>
+<div class="card is-new">
+  <div class="card-top">
+    <div class="price">$1,049,000</div>
+    
+  </div>
+  <div class="facts"><span class="fact">4 bd</span><span class="fact">3.0 ba</span><span class="fact">3,226 sqft</span></div>
+  <div class="address"><a href="https://www.redfin.com/MA/Framingham/616-Grove-St-01701/home/11604761" target="_blank" rel="noopener noreferrer">616 Grove St, Framingham, MA, 01701</a></div>
+  <div class="details">
+    <div>Built: 1947</div>
+    <div class="tax">Est. tax/yr: $13,280 <span class="tax-rate">(@ $12.66/$1000)</span></div>
+    <div class="transit">🚆 4.0 mi · 9 min by car to <span class="station">Framingham</span></div>
+    <div class="footer">6d on market · Single Family Residential · first seen 2026-06-02</div>
+  </div>
+</div></div></div><div class="town-block"><h3 class="town-heading">Natick, MA (4)</h3><div class="grid">
+<div class="card is-new">
+  <div class="card-top">
+    <div class="price">$1,199,000</div>
+    
+  </div>
+  <div class="facts"><span class="fact">4 bd</span><span class="fact">3.0 ba</span><span class="fact">2,802 sqft</span></div>
+  <div class="address"><a href="https://www.redfin.com/MA/Natick/12-Emerson-St-01760/home/11651757" target="_blank" rel="noopener noreferrer">12 Emerson St, Natick, MA, 01760</a></div>
+  <div class="details">
+    <div>Built: 1953</div>
+    <div class="tax">Est. tax/yr: $14,508 <span class="tax-rate">(@ $12.10/$1000)</span></div>
+    <div class="transit">🚆 2.4 mi · 5 min by car to <span class="station">Natick Center</span></div>
+    <div class="footer">3d on market · Single Family Residential · first seen 2026-06-05</div>
+  </div>
+</div>
+<div class="card is-new">
+  <div class="card-top">
+    <div class="price">$979,000</div>
+    
+  </div>
+  <div class="facts"><span class="fact">4 bd</span><span class="fact">2.0 ba</span><span class="fact">1,866 sqft</span></div>
+  <div class="address"><a href="https://www.redfin.com/MA/Natick/62-Bacon-St-01760/home/202128524" target="_blank" rel="noopener noreferrer">62 Bacon St, Natick, MA, 01760</a></div>
+  <div class="details">
+    <div>Built: 1950</div>
+    <div class="tax">Est. tax/yr: $11,846 <span class="tax-rate">(@ $12.10/$1000)</span></div>
+    <div class="transit">🚆 1.5 mi · 4 min by car to <span class="station">Natick Center</span></div>
+    <div class="footer">4d on market · Single Family Residential · first seen 2026-06-04</div>
+  </div>
+</div>
+<div class="card is-new">
+  <div class="card-top">
+    <div class="price">$1,495,000</div>
+    
+  </div>
+  <div class="facts"><span class="fact">4 bd</span><span class="fact">2.5 ba</span><span class="fact">3,984 sqft</span></div>
+  <div class="address"><a href="https://www.redfin.com/MA/Natick/3-Joshua-Path-01760/home/11671390" target="_blank" rel="noopener noreferrer">3 Joshua Path, Natick, MA, 01720</a></div>
+  <div class="details">
+    <div>Built: 1998</div>
+    <div class="tax">Est. tax/yr: $18,090 <span class="tax-rate">(@ $12.10/$1000)</span></div>
+    <div class="transit">🚆 1.5 mi · 3 min by car to <span class="station">Natick Center</span></div>
+    <div class="footer">4d on market · Single Family Residential · first seen 2026-06-04</div>
+  </div>
+</div>
+<div class="card is-new">
+  <div class="card-top">
+    <div class="price">$995,000</div>
+    
+  </div>
+  <div class="facts"><span class="fact">3 bd</span><span class="fact">2.5 ba</span><span class="fact">2,268 sqft</span></div>
+  <div class="address"><a href="https://www.redfin.com/MA/Natick/7-Westview-Ave-01760/unit-7/home/77503323" target="_blank" rel="noopener noreferrer">7 Westview Ave #7, Natick, MA, 01760</a></div>
+  <div class="details">
+    <div>Built: 2006</div>
+    <div class="tax">Est. tax/yr: $12,040 <span class="tax-rate">(@ $12.10/$1000)</span></div>
+    <div class="transit">🚆 0.7 mi · 2 min by car to <span class="station">Natick Center</span></div>
+    <div class="footer">38d on market · Townhouse · first seen 2026-06-03</div>
+  </div>
+</div></div></div><div class="town-block"><h3 class="town-heading">Waltham, MA (6)</h3><div class="grid">
+<div class="card is-new">
+  <div class="card-top">
+    <div class="price">$1,100,000</div>
+    
+  </div>
+  <div class="facts"><span class="fact">3 bd</span><span class="fact">3.5 ba</span><span class="fact">2,704 sqft</span></div>
+  <div class="address"><a href="https://www.redfin.com/MA/North-Waltham/153-Bishops-Forest-Dr-02452/unit-153/home/202149252" target="_blank" rel="noopener noreferrer">153 Bishops Forest Dr #153, North Waltham, MA, 02452</a></div>
+  <div class="details">
+    <div>Built: 1995</div>
+    <div class="tax">Est. tax/yr: $11,396 <span class="tax-rate">(@ $10.36/$1000)</span></div>
+    <div class="transit">🚆 2.6 mi · 8 min by car to <span class="station">Waltham</span></div>
+    <div class="footer">2d on market · Townhouse · first seen 2026-06-06</div>
+  </div>
+</div>
+<div class="card is-new">
+  <div class="card-top">
+    <div class="price">$939,000</div>
+    
+  </div>
+  <div class="facts"><span class="fact">3 bd</span><span class="fact">2.0 ba</span><span class="fact">2,585 sqft</span></div>
+  <div class="address"><a href="https://www.redfin.com/MA/Waltham/61-Canterbury-Rd-02453/home/11809699" target="_blank" rel="noopener noreferrer">61 Canterbury Rd, Waltham, MA, 02453</a></div>
+  <div class="details">
+    <div>Built: 1983</div>
+    <div class="tax">Est. tax/yr: $9,728 <span class="tax-rate">(@ $10.36/$1000)</span></div>
+    <div class="transit">🚆 1.4 mi · 4 min by car to <span class="station">Waltham</span></div>
+    <div class="footer">3d on market · Single Family Residential · first seen 2026-06-05</div>
+  </div>
+</div>
+<div class="card is-new">
+  <div class="card-top">
+    <div class="price">$1,149,000</div>
+    
+  </div>
+  <div class="facts"><span class="fact">3 bd</span><span class="fact">2.0 ba</span><span class="fact">2,156 sqft</span></div>
+  <div class="address"><a href="https://www.redfin.com/MA/Waltham/74-Rose-Hill-Way-02453/home/11809579" target="_blank" rel="noopener noreferrer">74 Rose Hill Way, Waltham, MA, 02453</a></div>
+  <div class="details">
+    <div>Built: 1940</div>
+    <div class="tax">Est. tax/yr: $11,904 <span class="tax-rate">(@ $10.36/$1000)</span></div>
+    <div class="transit">🚆 1.1 mi · 3 min by car to <span class="station">Waltham</span></div>
+    <div class="footer">2d on market · Single Family Residential · first seen 2026-06-05</div>
+  </div>
+</div>
+<div class="card is-new">
+  <div class="card-top">
+    <div class="price">$1,125,000</div>
+    
+  </div>
+  <div class="facts"><span class="fact">3 bd</span><span class="fact">3.0 ba</span><span class="fact">2,682 sqft</span></div>
+  <div class="address"><a href="https://www.redfin.com/MA/Waltham/20-Riverview-Ave-02453/home/11819163" target="_blank" rel="noopener noreferrer">20 Riverview Ave, Waltham, MA, 02453</a></div>
+  <div class="details">
+    <div>Built: 1910</div>
+    <div class="tax">Est. tax/yr: $11,655 <span class="tax-rate">(@ $10.36/$1000)</span></div>
+    <div class="transit">🚆 1.2 mi · 4 min by car to <span class="station">Waltham</span></div>
+    <div class="footer">4d on market · Single Family Residential · first seen 2026-06-04</div>
+  </div>
+</div>
+<div class="card is-new">
+  <div class="card-top">
+    <div class="price">$999,999</div>
+    
+  </div>
+  <div class="facts"><span class="fact">3 bd</span><span class="fact">2.5 ba</span><span class="fact">2,549 sqft</span></div>
+  <div class="address"><a href="https://www.redfin.com/MA/Waltham/24-Blossom-St-02451/home/11820793" target="_blank" rel="noopener noreferrer">24 Blossom St, Waltham, MA, 02451</a></div>
+  <div class="details">
+    <div>Built: 2000</div>
+    <div class="tax">Est. tax/yr: $10,360 <span class="tax-rate">(@ $10.36/$1000)</span></div>
+    <div class="transit">🚆 2.2 mi · 6 min by car to <span class="station">Waltham</span></div>
+    <div class="footer">5d on market · Single Family Residential · first seen 2026-06-03</div>
+  </div>
+</div>
+<div class="card is-new">
+  <div class="card-top">
+    <div class="price">$1,095,000</div>
+    
+  </div>
+  <div class="facts"><span class="fact">3 bd</span><span class="fact">2.0 ba</span><span class="fact">2,831 sqft</span></div>
+  <div class="address"><a href="https://www.redfin.com/MA/Waltham/38-Greenwood-Ln-02451/home/11806427" target="_blank" rel="noopener noreferrer">38 Greenwood Ln, Waltham, MA, 02451</a></div>
+  <div class="details">
+    <div>Built: 1958</div>
+    <div class="tax">Est. tax/yr: $11,344 <span class="tax-rate">(@ $10.36/$1000)</span></div>
+    <div class="transit">🚆 1.3 mi · 4 min by car to <span class="station">Waltham</span></div>
+    <div class="footer">4d on market · Single Family Residential · first seen 2026-06-03</div>
+  </div>
+</div></div></div></section>
+<section class="section"><div class="section-header"><h2>Burlington, MA</h2><span class="section-count">5 listings</span></div><div class="grid">
+<div class="card is-new">
+  <div class="card-top">
+    <div class="price">$1,375,000</div>
+    
+  </div>
+  <div class="facts"><span class="fact">5 bd</span><span class="fact">4.0 ba</span><span class="fact">5,223 sqft</span></div>
+  <div class="address"><a href="https://www.redfin.com/MA/Burlington/12-Corcoran-Rd-01803/home/11548181" target="_blank" rel="noopener noreferrer">12 Corcoran Rd, Burlington, MA, 01803</a></div>
+  <div class="details">
+    <div>Built: 2003</div>
+    <div class="tax">Est. tax/yr: $12,128 <span class="tax-rate">(@ $8.82/$1000)</span></div>
+    <div class="transit">🚆 5.3 mi · 11 min by car to <span class="station">Wilmington</span></div>
+    <div class="footer">3d on market · Single Family Residential · first seen 2026-06-05</div>
+  </div>
+</div>
+<div class="card">
+  <div class="card-top">
+    <div class="price">$1,050,000</div>
+    
+  </div>
+  <div class="facts"><span class="fact">4 bd</span><span class="fact">3.5 ba</span><span class="fact">3,540 sqft</span></div>
+  <div class="address"><a href="https://www.redfin.com/MA/Burlington/5-Williams-Cir-01803/home/8450340" target="_blank" rel="noopener noreferrer">5 Williams Cir, Burlington, MA, 01803</a></div>
+  <div class="details">
+    <div>Built: 1960</div>
+    <div class="tax">Est. tax/yr: $9,261 <span class="tax-rate">(@ $8.82/$1000)</span></div>
+    
+    <div class="footer">9d on market · Single Family Residential · first seen 2026-05-28</div>
+  </div>
+</div>
+<div class="card">
+  <div class="card-top">
+    <div class="price">$1,249,000</div>
+    
+  </div>
+  <div class="facts"><span class="fact">4 bd</span><span class="fact">4.0 ba</span><span class="fact">2,687 sqft</span></div>
+  <div class="address"><a href="https://www.redfin.com/MA/Burlington/6-Fairlawn-Ave-01803/home/39926899" target="_blank" rel="noopener noreferrer">6 Fairlawn, Burlington, MA, 01803</a></div>
+  <div class="details">
+    <div>Built: 2009</div>
+    <div class="tax">Est. tax/yr: $11,016 <span class="tax-rate">(@ $8.82/$1000)</span></div>
+    <div class="transit">🚆 4.1 mi · 8 min by car to <span class="station">Winchester Center</span></div>
+    <div class="footer">37d on market · Single Family Residential · first seen 2026-05-24</div>
+  </div>
+</div>
+<div class="card">
+  <div class="card-top">
+    <div class="price">$949,900</div>
+    
+  </div>
+  <div class="facts"><span class="fact">4 bd</span><span class="fact">2.0 ba</span><span class="fact">2,007 sqft</span></div>
+  <div class="address"><a href="https://www.redfin.com/MA/Burlington/20-Alma-Rd-01803/home/8441377" target="_blank" rel="noopener noreferrer">20 Alma Rd, Burlington, MA, 01803</a></div>
+  <div class="details">
+    <div>Built: 1951</div>
+    <div class="tax">Est. tax/yr: $8,378 <span class="tax-rate">(@ $8.82/$1000)</span></div>
+    <div class="transit">🚆 3.7 mi · 8 min by car to <span class="station">Wilmington</span></div>
+    <div class="footer">91d on market · Single Family Residential · first seen 2026-05-28</div>
+  </div>
+</div>
+<div class="card">
+  <div class="card-top">
+    <div class="price">$979,999</div>
+    
+  </div>
+  <div class="facts"><span class="fact">3 bd</span><span class="fact">2.5 ba</span><span class="fact">2,672 sqft</span></div>
+  <div class="address"><a href="https://www.redfin.com/MA/Burlington/210-Winn-St-01803/home/8453424" target="_blank" rel="noopener noreferrer">210 Winn St, Burlington, MA, 01803</a></div>
+  <div class="details">
+    <div>Built: 1971</div>
+    <div class="tax">Est. tax/yr: $8,644 <span class="tax-rate">(@ $8.82/$1000)</span></div>
+    
+    <div class="footer">233d on market · Single Family Residential · first seen 2026-05-28</div>
+  </div>
+</div></div></section>
+<section class="section"><div class="section-header"><h2>Framingham, MA</h2><span class="section-count">11 listings</span></div><div class="grid">
+<div class="card is-new">
+  <div class="card-top">
+    <div class="price">$1,275,000</div>
+    <div class="badges"><span class="badge new-build">New build</span></div>
+  </div>
+  <div class="facts"><span class="fact">3 bd</span><span class="fact">3.0 ba</span><span class="fact">2,559 sqft</span></div>
+  <div class="address"><a href="https://www.redfin.com/MA/Framingham/11-Baiting-Brook-Rd-01701/home/174889608" target="_blank" rel="noopener noreferrer">11 Baiting Brook Rd, Framingham, MA, 01701</a></div>
+  <div class="details">
+    <div>Built: 2021</div>
+    <div class="tax">Est. tax/yr: $16,142 <span class="tax-rate">(@ $12.66/$1000)</span></div>
+    <div class="transit">🚆 4.7 mi · 11 min by car to <span class="station">Framingham</span></div>
+    <div class="footer">3d on market · Condo/Co-op · first seen 2026-06-04</div>
+  </div>
+</div>
+<div class="card is-new">
+  <div class="card-top">
+    <div class="price">$1,049,000</div>
+    
+  </div>
+  <div class="facts"><span class="fact">4 bd</span><span class="fact">3.5 ba</span><span class="fact">3,300 sqft</span></div>
+  <div class="address"><a href="https://www.redfin.com/MA/Framingham/92-Flanagan-Dr-01701/home/11641063" target="_blank" rel="noopener noreferrer">92 Flanagan Dr, Framingham, MA, 01701</a></div>
+  <div class="details">
+    <div>Built: 1981</div>
+    <div class="tax">Est. tax/yr: $13,280 <span class="tax-rate">(@ $12.66/$1000)</span></div>
+    <div class="transit">🚆 5.0 mi · 12 min by car to <span class="station">Framingham</span></div>
+    <div class="footer">4d on market · Single Family Residential · first seen 2026-06-04</div>
+  </div>
+</div>
+<div class="card is-new">
+  <div class="card-top">
+    <div class="price">$1,049,000</div>
+    
+  </div>
+  <div class="facts"><span class="fact">4 bd</span><span class="fact">3.0 ba</span><span class="fact">3,226 sqft</span></div>
+  <div class="address"><a href="https://www.redfin.com/MA/Framingham/616-Grove-St-01701/home/11604761" target="_blank" rel="noopener noreferrer">616 Grove St, Framingham, MA, 01701</a></div>
+  <div class="details">
+    <div>Built: 1947</div>
+    <div class="tax">Est. tax/yr: $13,280 <span class="tax-rate">(@ $12.66/$1000)</span></div>
+    <div class="transit">🚆 4.0 mi · 9 min by car to <span class="station">Framingham</span></div>
+    <div class="footer">6d on market · Single Family Residential · first seen 2026-06-02</div>
+  </div>
+</div>
+<div class="card">
+  <div class="card-top">
+    <div class="price">$1,099,000</div>
+    
+  </div>
+  <div class="facts"><span class="fact">3 bd</span><span class="fact">2.5 ba</span><span class="fact">2,626 sqft</span></div>
+  <div class="address"><a href="https://www.redfin.com/MA/Framingham/61-Indian-Head-Rd-01701/home/11630174" target="_blank" rel="noopener noreferrer">61 Indian Head Rd, Framingham, MA, 01701</a></div>
+  <div class="details">
+    <div>Built: 1999</div>
+    <div class="tax">Est. tax/yr: $13,913 <span class="tax-rate">(@ $12.66/$1000)</span></div>
+    <div class="transit">🚆 3.1 mi · 8 min by car to <span class="station">Framingham</span></div>
+    <div class="footer">12d on market · Single Family Residential · first seen 2026-05-27</div>
+  </div>
+</div>
+<div class="card">
+  <div class="card-top">
+    <div class="price">$1,175,000</div>
+    
+  </div>
+  <div class="facts"><span class="fact">6 bd</span><span class="fact">4.0 ba</span><span class="fact">3,858 sqft</span></div>
+  <div class="address"><a href="https://www.redfin.com/MA/Framingham/15-Major-Hale-Dr-01701/home/11645256" target="_blank" rel="noopener noreferrer">15 Major Hale Dr, Framingham, MA, 01701</a></div>
+  <div class="details">
+    <div>Built: 1993</div>
+    <div class="tax">Est. tax/yr: $14,876 <span class="tax-rate">(@ $12.66/$1000)</span></div>
+    <div class="transit">🚆 4.5 mi · 10 min by car to <span class="station">Framingham</span></div>
+    <div class="footer">15d on market · Single Family Residential · first seen 2026-05-29</div>
+  </div>
+</div>
+<div class="card">
+  <div class="card-top">
+    <div class="price">$925,000</div>
+    <div class="badges"><span class="badge new-build">New build</span></div>
+  </div>
+  <div class="facts"><span class="fact">3 bd</span><span class="fact">2.5 ba</span><span class="fact">2,160 sqft</span></div>
+  <div class="address"><a href="https://www.redfin.com/MA/Framingham/17-Russell-Rd-01702/home/27783950" target="_blank" rel="noopener noreferrer">17 Russell Rd, Framingham, MA, 01702</a></div>
+  <div class="details">
+    <div>Built: 2010</div>
+    <div class="tax">Est. tax/yr: $11,710 <span class="tax-rate">(@ $12.66/$1000)</span></div>
+    <div class="transit">🚆 2.5 mi · 7 min by car to <span class="station">Framingham</span></div>
+    <div class="footer">24d on market · Single Family Residential · first seen 2026-05-24</div>
+  </div>
+</div>
+<div class="card">
+  <div class="card-top">
+    <div class="price">$999,900</div>
+    
+  </div>
+  <div class="facts"><span class="fact">4 bd</span><span class="fact">2.5 ba</span><span class="fact">3,572 sqft</span></div>
+  <div class="address"><a href="https://www.redfin.com/MA/Framingham/62-Ledgewood-Rd-01701/home/11634354" target="_blank" rel="noopener noreferrer">62 Ledgewood Rd, Framingham, MA, 01701</a></div>
+  <div class="details">
+    <div>Built: 1976</div>
+    <div class="tax">Est. tax/yr: $12,659 <span class="tax-rate">(@ $12.66/$1000)</span></div>
+    
+    <div class="footer">44d on market · Single Family Residential · first seen 2026-05-28</div>
+  </div>
+</div>
+<div class="card">
+  <div class="card-top">
+    <div class="price">$998,000</div>
+    
+  </div>
+  <div class="facts"><span class="fact">3 bd</span><span class="fact">2.5 ba</span><span class="fact">2,588 sqft</span></div>
+  <div class="address"><a href="https://www.redfin.com/MA/Framingham/106-Danforth-St-01701/home/11610907" target="_blank" rel="noopener noreferrer">106 Danforth St, Framingham, MA, 01701</a></div>
+  <div class="details">
+    <div>Built: 1994</div>
+    <div class="tax">Est. tax/yr: $12,635 <span class="tax-rate">(@ $12.66/$1000)</span></div>
+    <div class="transit">🚆 4.2 mi · 11 min by car to <span class="station">Framingham</span></div>
+    <div class="footer">67d on market · Single Family Residential · first seen 2026-05-24</div>
+  </div>
+</div>
+<div class="card">
+  <div class="card-top">
+    <div class="price">$949,000</div>
+    <div class="badges"><span class="badge new-build">New build</span></div>
+  </div>
+  <div class="facts"><span class="fact">4 bd</span><span class="fact">2.5 ba</span><span class="fact">2,939 sqft</span></div>
+  <div class="address"><a href="https://www.redfin.com/MA/Framingham/129-Dennison-Ave-01702/home/67988814" target="_blank" rel="noopener noreferrer">129 Dennison Ave, Framingham, MA, 01702</a></div>
+  <div class="details">
+    <div>Built: 2016</div>
+    <div class="tax">Est. tax/yr: $12,014 <span class="tax-rate">(@ $12.66/$1000)</span></div>
+    
+    <div class="footer">70d on market · Single Family Residential · first seen 2026-05-24</div>
+  </div>
+</div>
+<div class="card">
+  <div class="card-top">
+    <div class="price">$1,125,000</div>
+    
+  </div>
+  <div class="facts"><span class="fact">4 bd</span><span class="fact">3.5 ba</span><span class="fact">3,365 sqft</span></div>
+  <div class="address"><a href="https://www.redfin.com/MA/Framingham/576-Grove-St-01701/home/11604752" target="_blank" rel="noopener noreferrer">576 Grove St, Framingham, MA, 01701</a></div>
+  <div class="details">
+    <div>Built: 1956</div>
+    <div class="tax">Est. tax/yr: $14,242 <span class="tax-rate">(@ $12.66/$1000)</span></div>
+    <div class="transit">🚆 3.9 mi · 9 min by car to <span class="station">Framingham</span></div>
+    <div class="footer">79d on market · Single Family Residential · first seen 2026-05-28</div>
+  </div>
+</div>
+<div class="card">
+  <div class="card-top">
+    <div class="price">$1,279,000</div>
+    
+  </div>
+  <div class="facts"><span class="fact">4 bd</span><span class="fact">3.0 ba</span><span class="fact">4,256 sqft</span></div>
+  <div class="address"><a href="https://www.redfin.com/MA/Framingham/620-Edmands-Rd-01701/home/11620186" target="_blank" rel="noopener noreferrer">620 Edmands Rd, Framingham, MA, 01701</a></div>
+  <div class="details">
+    <div>Built: 1971</div>
+    <div class="tax">Est. tax/yr: $16,192 <span class="tax-rate">(@ $12.66/$1000)</span></div>
+    <div class="transit">🚆 5.5 mi · 12 min by car to <span class="station">Framingham</span></div>
+    <div class="footer">163d on market · Single Family Residential · first seen 2026-05-28</div>
+  </div>
+</div></div></section>
+<section class="section"><div class="section-header"><h2>Nashua, NH</h2><span class="section-count">3 listings</span></div><div class="grid">
+<div class="card">
+  <div class="card-top">
+    <div class="price">$989,900</div>
+    <div class="badges"><span class="badge new-build">New build</span></div>
+  </div>
+  <div class="facts"><span class="fact">3 bd</span><span class="fact">2.5 ba</span><span class="fact">2,433 sqft</span></div>
+  <div class="address"><a href="https://www.redfin.com/NH/Nashua/68-Farmington-Rd-03060/home/88087472" target="_blank" rel="noopener noreferrer">68 Farmington Rd, Nashua, NH, 03060</a></div>
+  <div class="details">
+    <div>Built: 2026</div>
+    <div class="tax">Est. tax/yr: $17,145 <span class="tax-rate">(@ $17.32/$1000)</span></div>
+    <div class="transit">🚆 14.5 mi · 24 min by car to <span class="station">Lowell</span></div>
+    <div class="footer">25d on market · Single Family Residential · first seen 2026-05-24</div>
+  </div>
+</div>
+<div class="card">
+  <div class="card-top">
+    <div class="price">$995,900</div>
+    
+  </div>
+  <div class="facts"><span class="fact">3 bd</span><span class="fact">2.5 ba</span><span class="fact">2,160 sqft</span></div>
+  <div class="address"><a href="https://www.redfin.com/NH/Nashua/18-Boylston-Ave-03064/home/112799479" target="_blank" rel="noopener noreferrer">18 Boylston Ave, Nashua, NH, 03064</a></div>
+  <div class="details">
+    <div>Built: unknown</div>
+    <div class="tax">Est. tax/yr: $17,249 <span class="tax-rate">(@ $17.32/$1000)</span></div>
+    
+    <div class="footer">56d on market · Single Family Residential · first seen 2026-05-24</div>
+  </div>
+</div>
+<div class="card">
+  <div class="card-top">
+    <div class="price">$940,000</div>
+    
+  </div>
+  <div class="facts"><span class="fact">4 bd</span><span class="fact">2.5 ba</span><span class="fact">3,020 sqft</span></div>
+  <div class="address"><a href="https://www.redfin.com/NH/Nashua/70-Concord-St-03064/home/88090712" target="_blank" rel="noopener noreferrer">70 concord St, Nashua, NH, 03064</a></div>
+  <div class="details">
+    <div>Built: 1888</div>
+    <div class="tax">Est. tax/yr: $16,281 <span class="tax-rate">(@ $17.32/$1000)</span></div>
+    <div class="transit">🚆 18.6 mi · 29 min by car to <span class="station">Lowell</span></div>
+    <div class="footer">170d on market · Single Family Residential · first seen 2026-05-28</div>
+  </div>
+</div></div></section>
+<section class="section"><div class="section-header"><h2>Natick, MA</h2><span class="section-count">22 listings</span></div><div class="grid">
+<div class="card is-new">
+  <div class="card-top">
+    <div class="price">$1,199,000</div>
+    
+  </div>
+  <div class="facts"><span class="fact">4 bd</span><span class="fact">3.0 ba</span><span class="fact">2,802 sqft</span></div>
+  <div class="address"><a href="https://www.redfin.com/MA/Natick/12-Emerson-St-01760/home/11651757" target="_blank" rel="noopener noreferrer">12 Emerson St, Natick, MA, 01760</a></div>
+  <div class="details">
+    <div>Built: 1953</div>
+    <div class="tax">Est. tax/yr: $14,508 <span class="tax-rate">(@ $12.10/$1000)</span></div>
+    <div class="transit">🚆 2.4 mi · 5 min by car to <span class="station">Natick Center</span></div>
+    <div class="footer">3d on market · Single Family Residential · first seen 2026-06-05</div>
+  </div>
+</div>
+<div class="card">
+  <div class="card-top">
+    <div class="price">$1,125,000</div>
+    <div class="badges"><span class="badge new-build">New build</span></div>
+  </div>
+  <div class="facts"><span class="fact">3 bd</span><span class="fact">2.5 ba</span><span class="fact">2,304 sqft</span></div>
+  <div class="address"><a href="https://www.redfin.com/MA/Natick/8-N-Pleasant-St-01760/unit-8/home/183621609" target="_blank" rel="noopener noreferrer">8 N Pleasant St #8, Natick, MA, 01760</a></div>
+  <div class="details">
+    <div>Built: 2022</div>
+    <div class="tax">Est. tax/yr: $13,612 <span class="tax-rate">(@ $12.10/$1000)</span></div>
+    
+    <div class="footer">4d on market · Single Family Residential · first seen 2026-05-24</div>
+  </div>
+</div>
+<div class="card">
+  <div class="card-top">
+    <div class="price">$1,439,000</div>
+    
+  </div>
+  <div class="facts"><span class="fact">4 bd</span><span class="fact">2.5 ba</span><span class="fact">3,164 sqft</span></div>
+  <div class="address"><a href="https://www.redfin.com/MA/Natick/11-Irving-Rd-01760/home/11649434" target="_blank" rel="noopener noreferrer">11 Irving Rd, Natick, MA, 01760</a></div>
+  <div class="details">
+    <div>Built: 2006</div>
+    <div class="tax">Est. tax/yr: $17,412 <span class="tax-rate">(@ $12.10/$1000)</span></div>
+    
+    <div class="footer">4d on market · Single Family Residential · first seen 2026-05-28</div>
+  </div>
+</div>
+<div class="card is-new">
+  <div class="card-top">
+    <div class="price">$1,495,000</div>
+    
+  </div>
+  <div class="facts"><span class="fact">4 bd</span><span class="fact">2.5 ba</span><span class="fact">3,984 sqft</span></div>
+  <div class="address"><a href="https://www.redfin.com/MA/Natick/3-Joshua-Path-01760/home/11671390" target="_blank" rel="noopener noreferrer">3 Joshua Path, Natick, MA, 01720</a></div>
+  <div class="details">
+    <div>Built: 1998</div>
+    <div class="tax">Est. tax/yr: $18,090 <span class="tax-rate">(@ $12.10/$1000)</span></div>
+    <div class="transit">🚆 1.5 mi · 3 min by car to <span class="station">Natick Center</span></div>
+    <div class="footer">4d on market · Single Family Residential · first seen 2026-06-04</div>
+  </div>
+</div>
+<div class="card is-new">
+  <div class="card-top">
+    <div class="price">$979,000</div>
+    
+  </div>
+  <div class="facts"><span class="fact">4 bd</span><span class="fact">2.0 ba</span><span class="fact">1,866 sqft</span></div>
+  <div class="address"><a href="https://www.redfin.com/MA/Natick/62-Bacon-St-01760/home/202128524" target="_blank" rel="noopener noreferrer">62 Bacon St, Natick, MA, 01760</a></div>
+  <div class="details">
+    <div>Built: 1950</div>
+    <div class="tax">Est. tax/yr: $11,846 <span class="tax-rate">(@ $12.10/$1000)</span></div>
+    <div class="transit">🚆 1.5 mi · 4 min by car to <span class="station">Natick Center</span></div>
+    <div class="footer">4d on market · Single Family Residential · first seen 2026-06-04</div>
+  </div>
+</div>
+<div class="card">
+  <div class="card-top">
+    <div class="price">$1,380,000</div>
+    
+  </div>
+  <div class="facts"><span class="fact">4 bd</span><span class="fact">3.0 ba</span><span class="fact">2,818 sqft</span></div>
+  <div class="address"><a href="https://www.redfin.com/MA/Natick/7-Whitney-Cir-01760/home/11648902" target="_blank" rel="noopener noreferrer">7 Whitney Cir, Natick, MA, 01760</a></div>
+  <div class="details">
+    <div>Built: 1995</div>
+    <div class="tax">Est. tax/yr: $16,698 <span class="tax-rate">(@ $12.10/$1000)</span></div>
+    
+    <div class="footer">6d on market · Single Family Residential · first seen 2026-05-24</div>
+  </div>
+</div>
+<div class="card">
+  <div class="card-top">
+    <div class="price">$1,475,000</div>
+    <div class="badges"><span class="badge new-build">New build</span></div>
+  </div>
+  <div class="facts"><span class="fact">4 bd</span><span class="fact">2.5 ba</span><span class="fact">3,206 sqft</span></div>
+  <div class="address"><a href="https://www.redfin.com/MA/Natick/3-Beverly-Rd-01760/home/11652836" target="_blank" rel="noopener noreferrer">3 Beverly Rd, Natick, MA, 01760</a></div>
+  <div class="details">
+    <div>Built: 2016</div>
+    <div class="tax">Est. tax/yr: $17,848 <span class="tax-rate">(@ $12.10/$1000)</span></div>
+    
+    <div class="footer">6d on market · Single Family Residential · first seen 2026-05-28</div>
+  </div>
+</div>
+<div class="card">
+  <div class="card-top">
+    <div class="price">$1,050,000</div>
+    
+  </div>
+  <div class="facts"><span class="fact">3 bd</span><span class="fact">2.5 ba</span><span class="fact">2,118 sqft</span></div>
+  <div class="address"><a href="https://www.redfin.com/MA/Natick/75-W-Central-St-01760/home/11663914" target="_blank" rel="noopener noreferrer">75 W Central St, Natick, MA, 01760</a></div>
+  <div class="details">
+    <div>Built: 1935</div>
+    <div class="tax">Est. tax/yr: $12,705 <span class="tax-rate">(@ $12.10/$1000)</span></div>
+    
+    <div class="footer">6d on market · Single Family Residential · first seen 2026-05-28</div>
+  </div>
+</div>
+<div class="card">
+  <div class="card-top">
+    <div class="price">$974,000</div>
+    <div class="badges"><span class="badge new-build">New build</span></div>
+  </div>
+  <div class="facts"><span class="fact">4 bd</span><span class="fact">3.5 ba</span><span class="fact">2,117 sqft</span></div>
+  <div class="address"><a href="https://www.redfin.com/MA/Natick/3-Wilson-St-01760/unit-3/home/202064265" target="_blank" rel="noopener noreferrer">3 Wilson St #3, Natick, MA, 01760</a></div>
+  <div class="details">
+    <div>Built: 2025</div>
+    <div class="tax">Est. tax/yr: $11,785 <span class="tax-rate">(@ $12.10/$1000)</span></div>
+    <div class="transit">🚆 0.4 mi · 1 min by car to <span class="station">Natick Center</span></div>
+    <div class="footer">9d on market · Townhouse · first seen 2026-05-30</div>
+  </div>
+</div>
+<div class="card">
+  <div class="card-top">
+    <div class="price">$1,049,900</div>
+    
+  </div>
+  <div class="facts"><span class="fact">4 bd</span><span class="fact">2.5 ba</span><span class="fact">2,393 sqft</span></div>
+  <div class="address"><a href="https://www.redfin.com/MA/Natick/169-Woodland-St-01760/home/11670028" target="_blank" rel="noopener noreferrer">169 Woodland St, Natick, MA, 01760</a></div>
+  <div class="details">
+    <div>Built: 1953</div>
+    <div class="tax">Est. tax/yr: $12,704 <span class="tax-rate">(@ $12.10/$1000)</span></div>
+    
+    <div class="footer">14d on market · Single Family Residential · first seen 2026-05-28</div>
+  </div>
+</div>
+<div class="card">
+  <div class="card-top">
+    <div class="price">$950,000</div>
+    
+  </div>
+  <div class="facts"><span class="fact">4 bd</span><span class="fact">2.5 ba</span><span class="fact">2,802 sqft</span></div>
+  <div class="address"><a href="https://www.redfin.com/MA/Natick/4-Crescent-St-01760/home/11676408" target="_blank" rel="noopener noreferrer">4 Crescent St, Natick, MA, 01760</a></div>
+  <div class="details">
+    <div>Built: 1942</div>
+    <div class="tax">Est. tax/yr: $11,495 <span class="tax-rate">(@ $12.10/$1000)</span></div>
+    
+    <div class="footer">15d on market · Single Family Residential · first seen 2026-05-28</div>
+  </div>
+</div>
+<div class="card">
+  <div class="card-top">
+    <div class="price">$995,000</div>
+    
+  </div>
+  <div class="facts"><span class="fact">4 bd</span><span class="fact">2.5 ba</span><span class="fact">2,109 sqft</span></div>
+  <div class="address"><a href="https://www.redfin.com/MA/Natick/20-Pine-St-01760/home/11648588" target="_blank" rel="noopener noreferrer">20 Pine St, Natick, MA, 01760</a></div>
+  <div class="details">
+    <div>Built: 1900</div>
+    <div class="tax">Est. tax/yr: $12,040 <span class="tax-rate">(@ $12.10/$1000)</span></div>
+    <div class="transit">🚆 2.5 mi · 4 min by car to <span class="station">Natick Center</span></div>
+    <div class="footer">19d on market · Single Family Residential · first seen 2026-05-28</div>
+  </div>
+</div>
+<div class="card">
+  <div class="card-top">
+    <div class="price">$1,129,000</div>
+    
+  </div>
+  <div class="facts"><span class="fact">3 bd</span><span class="fact">2.5 ba</span><span class="fact">2,126 sqft</span></div>
+  <div class="address"><a href="https://www.redfin.com/MA/Natick/20-Eastleigh-Ln-01760/home/11670934" target="_blank" rel="noopener noreferrer">20 Eastleigh Ln, Natick, MA, 01760</a></div>
+  <div class="details">
+    <div>Built: 1992</div>
+    <div class="tax">Est. tax/yr: $13,661 <span class="tax-rate">(@ $12.10/$1000)</span></div>
+    
+    <div class="footer">23d on market · Single Family Residential · first seen 2026-05-24</div>
+  </div>
+</div>
+<div class="card">
+  <div class="card-top">
+    <div class="price">$995,000</div>
+    
+  </div>
+  <div class="facts"><span class="fact">3 bd</span><span class="fact">2.5 ba</span><span class="fact">2,268 sqft</span></div>
+  <div class="address"><a href="https://www.redfin.com/MA/Natick/7-Westview-Ave-01760/unit-7/home/77503323" target="_blank" rel="noopener noreferrer">7 Westview Ave #7, Natick, MA, 01760</a></div>
+  <div class="details">
+    <div>Built: 2006</div>
+    <div class="tax">Est. tax/yr: $12,040 <span class="tax-rate">(@ $12.10/$1000)</span></div>
+    
+    <div class="footer">33d on market · Single Family Residential · first seen 2026-05-24</div>
+  </div>
+</div>
+<div class="card">
+  <div class="card-top">
+    <div class="price">$1,199,000</div>
+    
+  </div>
+  <div class="facts"><span class="fact">5 bd</span><span class="fact">2.5 ba</span><span class="fact">2,669 sqft</span></div>
+  <div class="address"><a href="https://www.redfin.com/MA/Natick/89-Pond-St-01760/home/11663688" target="_blank" rel="noopener noreferrer">89 Pond St, Natick, MA, 01760</a></div>
+  <div class="details">
+    <div>Built: 1870</div>
+    <div class="tax">Est. tax/yr: $14,508 <span class="tax-rate">(@ $12.10/$1000)</span></div>
+    <div class="transit">🚆 0.6 mi · 2 min by car to <span class="station">Natick Center</span></div>
+    <div class="footer">37d on market · Single Family Residential · first seen 2026-05-28</div>
+  </div>
+</div>
+<div class="card is-new">
+  <div class="card-top">
+    <div class="price">$995,000</div>
+    
+  </div>
+  <div class="facts"><span class="fact">3 bd</span><span class="fact">2.5 ba</span><span class="fact">2,268 sqft</span></div>
+  <div class="address"><a href="https://www.redfin.com/MA/Natick/7-Westview-Ave-01760/unit-7/home/77503323" target="_blank" rel="noopener noreferrer">7 Westview Ave #7, Natick, MA, 01760</a></div>
+  <div class="details">
+    <div>Built: 2006</div>
+    <div class="tax">Est. tax/yr: $12,040 <span class="tax-rate">(@ $12.10/$1000)</span></div>
+    <div class="transit">🚆 0.7 mi · 2 min by car to <span class="station">Natick Center</span></div>
+    <div class="footer">38d on market · Townhouse · first seen 2026-06-03</div>
+  </div>
+</div>
+<div class="card">
+  <div class="card-top">
+    <div class="price">$998,000</div>
+    <div class="badges"><span class="badge new-build">New build</span></div>
+  </div>
+  <div class="facts"><span class="fact">3 bd</span><span class="fact">2.5 ba</span><span class="fact">2,746 sqft</span></div>
+  <div class="address"><a href="https://www.redfin.com/MA/Natick/265-Bacon-St-01760/unit-B/home/143080631" target="_blank" rel="noopener noreferrer">265B Bacon St, Natick, MA, 01760</a></div>
+  <div class="details">
+    <div>Built: 2017</div>
+    <div class="tax">Est. tax/yr: $12,076 <span class="tax-rate">(@ $12.10/$1000)</span></div>
+    
+    <div class="footer">41d on market · Single Family Residential · first seen 2026-05-24</div>
+  </div>
+</div>
+<div class="card">
+  <div class="card-top">
+    <div class="price">$1,249,900</div>
+    
+  </div>
+  <div class="facts"><span class="fact">5 bd</span><span class="fact">3.5 ba</span><span class="fact">2,864 sqft</span></div>
+  <div class="address"><a href="https://www.redfin.com/MA/Natick/48-Bradford-Rd-01760/home/11650510" target="_blank" rel="noopener noreferrer">48 Bradford Rd, Natick, MA, 01760</a></div>
+  <div class="details">
+    <div>Built: 1953</div>
+    <div class="tax">Est. tax/yr: $15,124 <span class="tax-rate">(@ $12.10/$1000)</span></div>
+    <div class="transit">🚆 3.4 mi · 7 min by car to <span class="station">Natick Center</span></div>
+    <div class="footer">56d on market · Single Family Residential · first seen 2026-05-28</div>
+  </div>
+</div>
+<div class="card">
+  <div class="card-top">
+    <div class="price">$1,035,000</div>
+    
+  </div>
+  <div class="facts"><span class="fact">3 bd</span><span class="fact">2.5 ba</span><span class="fact">2,872 sqft</span></div>
+  <div class="address"><a href="https://www.redfin.com/MA/Natick/22-Westview-Rd-01760/unit-22/home/11920978" target="_blank" rel="noopener noreferrer">22 Westview Rd #22, Natick, MA, 01760</a></div>
+  <div class="details">
+    <div>Built: 2006</div>
+    <div class="tax">Est. tax/yr: $12,524 <span class="tax-rate">(@ $12.10/$1000)</span></div>
+    <div class="transit">🚆 0.6 mi · 2 min by car to <span class="station">West Natick</span></div>
+    <div class="footer">59d on market · Townhouse · first seen 2026-05-24</div>
+  </div>
+</div>
+<div class="card">
+  <div class="card-top">
+    <div class="price">$1,199,900</div>
+    
+  </div>
+  <div class="facts"><span class="fact">4 bd</span><span class="fact">3.0 ba</span><span class="fact">2,446 sqft</span></div>
+  <div class="address"><a href="https://www.redfin.com/MA/Natick/52-Washington-St-01760/home/11659657" target="_blank" rel="noopener noreferrer">52 Washington St, Natick, MA, 01760</a></div>
+  <div class="details">
+    <div>Built: 1900</div>
+    <div class="tax">Est. tax/yr: $14,519 <span class="tax-rate">(@ $12.10/$1000)</span></div>
+    <div class="transit">🚆 0.2 mi · 1 min by car to <span class="station">Natick Center</span></div>
+    <div class="footer">81d on market · Single Family Residential · first seen 2026-05-28</div>
+  </div>
+</div>
+<div class="card">
+  <div class="card-top">
+    <div class="price">$1,495,000</div>
+    
+  </div>
+  <div class="facts"><span class="fact">4 bd</span><span class="fact">3.5 ba</span><span class="fact">4,038 sqft</span></div>
+  <div class="address"><a href="https://www.redfin.com/MA/Natick/18-Phillips-Pond-Rd-01760/unit-18/home/11920055" target="_blank" rel="noopener noreferrer">18 Phillips Pond Rd #18, Natick, MA, 01760</a></div>
+  <div class="details">
+    <div>Built: 1989</div>
+    <div class="tax">Est. tax/yr: $18,090 <span class="tax-rate">(@ $12.10/$1000)</span></div>
+    <div class="transit">🚆 3.4 mi · 9 min by car to <span class="station">Natick Center</span></div>
+    <div class="footer">255d on market · Single Family Residential · first seen 2026-05-28</div>
+  </div>
+</div>
+<div class="card">
+  <div class="card-top">
+    <div class="price">$974,000</div>
+    <div class="badges"><span class="badge new-build">New build</span></div>
+  </div>
+  <div class="facts"><span class="fact">4 bd</span><span class="fact">3.5 ba</span><span class="fact">2,117 sqft</span></div>
+  <div class="address"><a href="https://www.redfin.com/MA/Natick/3B-Wilson-St-01760/unit-3B/home/197780431" target="_blank" rel="noopener noreferrer">3B Wilson St Unit 3B, Natick, MA, 01760</a></div>
+  <div class="details">
+    <div>Built: 2025</div>
+    <div class="tax">Est. tax/yr: $11,785 <span class="tax-rate">(@ $12.10/$1000)</span></div>
+    
+    <div class="footer">262d on market · Townhouse · first seen 2026-05-24</div>
+  </div>
+</div></div></section>
+<section class="section"><div class="section-header"><h2>Waltham, MA</h2><span class="section-count">26 listings</span></div><div class="grid">
+<div class="card is-new">
+  <div class="card-top">
+    <div class="price">$1,149,000</div>
+    
+  </div>
+  <div class="facts"><span class="fact">3 bd</span><span class="fact">2.0 ba</span><span class="fact">2,156 sqft</span></div>
+  <div class="address"><a href="https://www.redfin.com/MA/Waltham/74-Rose-Hill-Way-02453/home/11809579" target="_blank" rel="noopener noreferrer">74 Rose Hill Way, Waltham, MA, 02453</a></div>
+  <div class="details">
+    <div>Built: 1940</div>
+    <div class="tax">Est. tax/yr: $11,904 <span class="tax-rate">(@ $10.36/$1000)</span></div>
+    <div class="transit">🚆 1.1 mi · 3 min by car to <span class="station">Waltham</span></div>
+    <div class="footer">2d on market · Single Family Residential · first seen 2026-06-05</div>
+  </div>
+</div>
+<div class="card is-new">
+  <div class="card-top">
+    <div class="price">$1,100,000</div>
+    
+  </div>
+  <div class="facts"><span class="fact">3 bd</span><span class="fact">3.5 ba</span><span class="fact">2,704 sqft</span></div>
+  <div class="address"><a href="https://www.redfin.com/MA/North-Waltham/153-Bishops-Forest-Dr-02452/unit-153/home/202149252" target="_blank" rel="noopener noreferrer">153 Bishops Forest Dr #153, North Waltham, MA, 02452</a></div>
+  <div class="details">
+    <div>Built: 1995</div>
+    <div class="tax">Est. tax/yr: $11,396 <span class="tax-rate">(@ $10.36/$1000)</span></div>
+    <div class="transit">🚆 2.6 mi · 8 min by car to <span class="station">Waltham</span></div>
+    <div class="footer">2d on market · Townhouse · first seen 2026-06-06</div>
+  </div>
+</div>
+<div class="card is-new">
+  <div class="card-top">
+    <div class="price">$939,000</div>
+    
+  </div>
+  <div class="facts"><span class="fact">3 bd</span><span class="fact">2.0 ba</span><span class="fact">2,585 sqft</span></div>
+  <div class="address"><a href="https://www.redfin.com/MA/Waltham/61-Canterbury-Rd-02453/home/11809699" target="_blank" rel="noopener noreferrer">61 Canterbury Rd, Waltham, MA, 02453</a></div>
+  <div class="details">
+    <div>Built: 1983</div>
+    <div class="tax">Est. tax/yr: $9,728 <span class="tax-rate">(@ $10.36/$1000)</span></div>
+    <div class="transit">🚆 1.4 mi · 4 min by car to <span class="station">Waltham</span></div>
+    <div class="footer">3d on market · Single Family Residential · first seen 2026-06-05</div>
+  </div>
+</div>
+<div class="card is-new">
+  <div class="card-top">
+    <div class="price">$1,095,000</div>
+    
+  </div>
+  <div class="facts"><span class="fact">3 bd</span><span class="fact">2.0 ba</span><span class="fact">2,831 sqft</span></div>
+  <div class="address"><a href="https://www.redfin.com/MA/Waltham/38-Greenwood-Ln-02451/home/11806427" target="_blank" rel="noopener noreferrer">38 Greenwood Ln, Waltham, MA, 02451</a></div>
+  <div class="details">
+    <div>Built: 1958</div>
+    <div class="tax">Est. tax/yr: $11,344 <span class="tax-rate">(@ $10.36/$1000)</span></div>
+    <div class="transit">🚆 1.3 mi · 4 min by car to <span class="station">Waltham</span></div>
+    <div class="footer">4d on market · Single Family Residential · first seen 2026-06-03</div>
+  </div>
+</div>
+<div class="card is-new">
+  <div class="card-top">
+    <div class="price">$1,125,000</div>
+    
+  </div>
+  <div class="facts"><span class="fact">3 bd</span><span class="fact">3.0 ba</span><span class="fact">2,682 sqft</span></div>
+  <div class="address"><a href="https://www.redfin.com/MA/Waltham/20-Riverview-Ave-02453/home/11819163" target="_blank" rel="noopener noreferrer">20 Riverview Ave, Waltham, MA, 02453</a></div>
+  <div class="details">
+    <div>Built: 1910</div>
+    <div class="tax">Est. tax/yr: $11,655 <span class="tax-rate">(@ $10.36/$1000)</span></div>
+    <div class="transit">🚆 1.2 mi · 4 min by car to <span class="station">Waltham</span></div>
+    <div class="footer">4d on market · Single Family Residential · first seen 2026-06-04</div>
+  </div>
+</div>
+<div class="card is-new">
+  <div class="card-top">
+    <div class="price">$999,999</div>
+    
+  </div>
+  <div class="facts"><span class="fact">3 bd</span><span class="fact">2.5 ba</span><span class="fact">2,549 sqft</span></div>
+  <div class="address"><a href="https://www.redfin.com/MA/Waltham/24-Blossom-St-02451/home/11820793" target="_blank" rel="noopener noreferrer">24 Blossom St, Waltham, MA, 02451</a></div>
+  <div class="details">
+    <div>Built: 2000</div>
+    <div class="tax">Est. tax/yr: $10,360 <span class="tax-rate">(@ $10.36/$1000)</span></div>
+    <div class="transit">🚆 2.2 mi · 6 min by car to <span class="station">Waltham</span></div>
+    <div class="footer">5d on market · Single Family Residential · first seen 2026-06-03</div>
+  </div>
+</div>
+<div class="card">
+  <div class="card-top">
+    <div class="price">$1,049,000</div>
+    <div class="badges"><span class="badge new-build">New build</span></div>
+  </div>
+  <div class="facts"><span class="fact">3 bd</span><span class="fact">2.5 ba</span><span class="fact">2,458 sqft</span></div>
+  <div class="address"><a href="https://www.redfin.com/MA/Waltham/61-Gale-St-02453/unit-1/home/179768378" target="_blank" rel="noopener noreferrer">61 Gale St #1, Waltham, MA, 02453</a></div>
+  <div class="details">
+    <div>Built: 2021</div>
+    <div class="tax">Est. tax/yr: $10,868 <span class="tax-rate">(@ $10.36/$1000)</span></div>
+    <div class="transit">🚆 0.7 mi · 2 min by car to <span class="station">Waltham</span></div>
+    <div class="footer">10d on market · Townhouse · first seen 2026-05-29</div>
+  </div>
+</div>
+<div class="card">
+  <div class="card-top">
+    <div class="price">$1,129,000</div>
+    <div class="badges"><span class="badge new-build">New build</span></div>
+  </div>
+  <div class="facts"><span class="fact">4 bd</span><span class="fact">3.0 ba</span><span class="fact">2,500 sqft</span></div>
+  <div class="address"><a href="https://www.redfin.com/MA/Waltham/43-Hall-St-02453/unit-1/home/167722145" target="_blank" rel="noopener noreferrer">43 Hall St #1, Waltham, MA, 02453</a></div>
+  <div class="details">
+    <div>Built: 2016</div>
+    <div class="tax">Est. tax/yr: $11,696 <span class="tax-rate">(@ $10.36/$1000)</span></div>
+    <div class="transit">🚆 0.5 mi · 2 min by car to <span class="station">Waltham</span></div>
+    <div class="footer">11d on market · Townhouse · first seen 2026-05-28</div>
+  </div>
+</div>
+<div class="card">
+  <div class="card-top">
+    <div class="price">$949,999</div>
+    
+  </div>
+  <div class="facts"><span class="fact">3 bd</span><span class="fact">3.5 ba</span><span class="fact">2,420 sqft</span></div>
+  <div class="address"><a href="https://www.redfin.com/MA/Waltham/243-Bishops-Forest-Dr-02452/unit-243/home/180948019" target="_blank" rel="noopener noreferrer">243 Bishops Forest Dr #243, Waltham, MA, 02452</a></div>
+  <div class="details">
+    <div>Built: 1989</div>
+    <div class="tax">Est. tax/yr: $9,842 <span class="tax-rate">(@ $10.36/$1000)</span></div>
+    <div class="transit">🚆 2.7 mi · 8 min by car to <span class="station">Waltham</span></div>
+    <div class="footer">12d on market · Townhouse · first seen 2026-05-28</div>
+  </div>
+</div>
+<div class="card">
+  <div class="card-top">
+    <div class="price">$1,069,000</div>
+    <div class="badges"><span class="badge new-build">New build</span></div>
+  </div>
+  <div class="facts"><span class="fact">4 bd</span><span class="fact">2.5 ba</span><span class="fact">2,150 sqft</span></div>
+  <div class="address"><a href="https://www.redfin.com/MA/Waltham/67-Ash-St-02453/home/11817829" target="_blank" rel="noopener noreferrer">67 Ash St, Waltham, MA, 02453</a></div>
+  <div class="details">
+    <div>Built: 2018</div>
+    <div class="tax">Est. tax/yr: $11,075 <span class="tax-rate">(@ $10.36/$1000)</span></div>
+    
+    <div class="footer">13d on market · Single Family Residential · first seen 2026-05-24</div>
+  </div>
+</div>
+<div class="card">
+  <div class="card-top">
+    <div class="price">$1,295,000</div>
+    <div class="badges"><span class="badge new-build">New build</span></div>
+  </div>
+  <div class="facts"><span class="fact">3 bd</span><span class="fact">4.5 ba</span><span class="fact">2,500 sqft</span></div>
+  <div class="address"><a href="https://www.redfin.com/MA/Waltham/236-Lake-St-02451/home/201546717" target="_blank" rel="noopener noreferrer">236 Lake St, Waltham, MA, 02451</a></div>
+  <div class="details">
+    <div>Built: 2026</div>
+    <div class="tax">Est. tax/yr: $13,416 <span class="tax-rate">(@ $10.36/$1000)</span></div>
+    <div class="transit">🚆 2.5 mi · 7 min by car to <span class="station">Waltham</span></div>
+    <div class="footer">17d on market · Single Family Residential · first seen 2026-05-24</div>
+  </div>
+</div>
+<div class="card">
+  <div class="card-top">
+    <div class="price">$1,130,000</div>
+    
+  </div>
+  <div class="facts"><span class="fact">4 bd</span><span class="fact">2.5 ba</span><span class="fact">2,316 sqft</span></div>
+  <div class="address"><a href="https://www.redfin.com/MA/Waltham/99-Princeton-Ave-02451/home/11437840" target="_blank" rel="noopener noreferrer">99 Princeton Ave, Waltham, MA, 02451</a></div>
+  <div class="details">
+    <div>Built: 2006</div>
+    <div class="tax">Est. tax/yr: $11,707 <span class="tax-rate">(@ $10.36/$1000)</span></div>
+    <div class="transit">🚆 2.4 mi · 6 min by car to <span class="station">Waltham</span></div>
+    <div class="footer">18d on market · Single Family Residential · first seen 2026-05-24</div>
+  </div>
+</div>
+<div class="card">
+  <div class="card-top">
+    <div class="price">$945,000</div>
+    <div class="badges"><span class="badge new-build">New build</span></div>
+  </div>
+  <div class="facts"><span class="fact">3 bd</span><span class="fact">2.5 ba</span><span class="fact">1,815 sqft</span></div>
+  <div class="address"><a href="https://www.redfin.com/MA/Waltham/53-Hiawatha-Ave-02451/home/11802993" target="_blank" rel="noopener noreferrer">53 Hiawatha Ave, Waltham, MA, 02451</a></div>
+  <div class="details">
+    <div>Built: 2010</div>
+    <div class="tax">Est. tax/yr: $9,790 <span class="tax-rate">(@ $10.36/$1000)</span></div>
+    <div class="transit">🚆 2.6 mi · 7 min by car to <span class="station">Waltham</span></div>
+    <div class="footer">19d on market · Single Family Residential · first seen 2026-05-24</div>
+  </div>
+</div>
+<div class="card">
+  <div class="card-top">
+    <div class="price">$1,439,000</div>
+    <div class="badges"><span class="badge new-build">New build</span></div>
+  </div>
+  <div class="facts"><span class="fact">4 bd</span><span class="fact">3.5 ba</span><span class="fact">3,765 sqft</span></div>
+  <div class="address"><a href="https://www.redfin.com/MA/Waltham/165-River-St-02453/unit-2/home/181104384" target="_blank" rel="noopener noreferrer">165 River St #2, Waltham, MA, 02453</a></div>
+  <div class="details">
+    <div>Built: 2022</div>
+    <div class="tax">Est. tax/yr: $14,908 <span class="tax-rate">(@ $10.36/$1000)</span></div>
+    <div class="transit">🚆 0.9 mi · 3 min by car to <span class="station">Waltham</span></div>
+    <div class="footer">24d on market · Townhouse · first seen 2026-05-24</div>
+  </div>
+</div>
+<div class="card">
+  <div class="card-top">
+    <div class="price">$1,350,000</div>
+    <div class="badges"><span class="badge new-build">New build</span></div>
+  </div>
+  <div class="facts"><span class="fact">3 bd</span><span class="fact">2.5 ba</span><span class="fact">3,559 sqft</span></div>
+  <div class="address"><a href="https://www.redfin.com/MA/Waltham/128-Church-St-02452/unit-2/home/113075440" target="_blank" rel="noopener noreferrer">128 Church St #2, Waltham, MA, 02452</a></div>
+  <div class="details">
+    <div>Built: 2015</div>
+    <div class="tax">Est. tax/yr: $13,986 <span class="tax-rate">(@ $10.36/$1000)</span></div>
+    <div class="transit">🚆 0.7 mi · 2 min by car to <span class="station">Waltham</span></div>
+    <div class="footer">25d on market · Townhouse · first seen 2026-05-24</div>
+  </div>
+</div>
+<div class="card">
+  <div class="card-top">
+    <div class="price">$950,000</div>
+    
+  </div>
+  <div class="facts"><span class="fact">3 bd</span><span class="fact">2.0 ba</span><span class="fact">3,226 sqft</span></div>
+  <div class="address"><a href="https://www.redfin.com/MA/Waltham/293-Florence-Rd-02453/home/11816310" target="_blank" rel="noopener noreferrer">293 Florence Rd, Waltham, MA, 02453</a></div>
+  <div class="details">
+    <div>Built: 1921</div>
+    <div class="tax">Est. tax/yr: $9,842 <span class="tax-rate">(@ $10.36/$1000)</span></div>
+    <div class="transit">🚆 1.8 mi · 5 min by car to <span class="station">Kendal Green</span></div>
+    <div class="footer">32d on market · Single Family Residential · first seen 2026-05-28</div>
+  </div>
+</div>
+<div class="card">
+  <div class="card-top">
+    <div class="price">$1,195,000</div>
+    <div class="badges"><span class="badge new-build">New build</span></div>
+  </div>
+  <div class="facts"><span class="fact">4 bd</span><span class="fact">3.5 ba</span><span class="fact">2,957 sqft</span></div>
+  <div class="address"><a href="https://www.redfin.com/MA/Waltham/138-Myrtle-St-02453/unit-2/home/185518669" target="_blank" rel="noopener noreferrer">138 Myrtle St #2, Waltham, MA, 02453</a></div>
+  <div class="details">
+    <div>Built: 2023</div>
+    <div class="tax">Est. tax/yr: $12,380 <span class="tax-rate">(@ $10.36/$1000)</span></div>
+    <div class="transit">🚆 1.1 mi · 3 min by car to <span class="station">Waltham</span></div>
+    <div class="footer">37d on market · Townhouse · first seen 2026-05-24</div>
+  </div>
+</div>
+<div class="card">
+  <div class="card-top">
+    <div class="price">$1,079,900</div>
+    <div class="badges"><span class="badge new-build">New build</span></div>
+  </div>
+  <div class="facts"><span class="fact">4 bd</span><span class="fact">3.5 ba</span><span class="fact">2,600 sqft</span></div>
+  <div class="address"><a href="https://www.redfin.com/MA/Waltham/172-Bright-St-02453/unit-3/home/113820110" target="_blank" rel="noopener noreferrer">172 Bright St #3, Waltham, MA, 02453</a></div>
+  <div class="details">
+    <div>Built: 2016</div>
+    <div class="tax">Est. tax/yr: $11,188 <span class="tax-rate">(@ $10.36/$1000)</span></div>
+    <div class="transit">🚆 0.7 mi · 2 min by car to <span class="station">Waltham</span></div>
+    <div class="footer">39d on market · Townhouse · first seen 2026-05-24</div>
+  </div>
+</div>
+<div class="card">
+  <div class="card-top">
+    <div class="price">$1,338,000</div>
+    <div class="badges"><span class="badge new-build">New build</span></div>
+  </div>
+  <div class="facts"><span class="fact">4 bd</span><span class="fact">4.5 ba</span><span class="fact">3,150 sqft</span></div>
+  <div class="address"><a href="https://www.redfin.com/MA/Waltham/20-College-Farm-Rd-02451/home/167038079" target="_blank" rel="noopener noreferrer">20 College Farm Rd, Waltham, MA, 02451</a></div>
+  <div class="details">
+    <div>Built: 2022</div>
+    <div class="tax">Est. tax/yr: $13,862 <span class="tax-rate">(@ $10.36/$1000)</span></div>
+    <div class="transit">🚆 2.0 mi · 5 min by car to <span class="station">Waltham</span></div>
+    <div class="footer">46d on market · Single Family Residential · first seen 2026-05-24</div>
+  </div>
+</div>
+<div class="card">
+  <div class="card-top">
+    <div class="price">$945,000</div>
+    
+  </div>
+  <div class="facts"><span class="fact">3 bd</span><span class="fact">2.5 ba</span><span class="fact">1,883 sqft</span></div>
+  <div class="address"><a href="https://www.redfin.com/MA/Waltham/43-Leonard-St-02451/home/11808185" target="_blank" rel="noopener noreferrer">43 Leonard St, Waltham, MA, 02451</a></div>
+  <div class="details">
+    <div>Built: 1900</div>
+    <div class="tax">Est. tax/yr: $9,790 <span class="tax-rate">(@ $10.36/$1000)</span></div>
+    
+    <div class="footer">51d on market · Single Family Residential · first seen 2026-05-28</div>
+  </div>
+</div>
+<div class="card">
+  <div class="card-top">
+    <div class="price">$1,298,000</div>
+    
+  </div>
+  <div class="facts"><span class="fact">3 bd</span><span class="fact">2.5 ba</span><span class="fact">2,835 sqft</span></div>
+  <div class="address"><a href="https://www.redfin.com/MA/Waltham/174-Forest-St-02452/home/11807003" target="_blank" rel="noopener noreferrer">174 Forest, Waltham, MA, 02452</a></div>
+  <div class="details">
+    <div>Built: 1958</div>
+    <div class="tax">Est. tax/yr: $13,447 <span class="tax-rate">(@ $10.36/$1000)</span></div>
+    <div class="transit">🚆 1.6 mi · 4 min by car to <span class="station">Waltham</span></div>
+    <div class="footer">53d on market · Single Family Residential · first seen 2026-05-28</div>
+  </div>
+</div>
+<div class="card">
+  <div class="card-top">
+    <div class="price">$1,349,900</div>
+    <div class="badges"><span class="badge new-build">New build</span></div>
+  </div>
+  <div class="facts"><span class="fact">4 bd</span><span class="fact">3.5 ba</span><span class="fact">3,002 sqft</span></div>
+  <div class="address"><a href="https://www.redfin.com/MA/Waltham/308-Newton-St-02453/unit-1A/home/196777509" target="_blank" rel="noopener noreferrer">308 Newton St Unit 1A, Waltham, MA, 02453</a></div>
+  <div class="details">
+    <div>Built: 2025</div>
+    <div class="tax">Est. tax/yr: $13,985 <span class="tax-rate">(@ $10.36/$1000)</span></div>
+    <div class="transit">🚆 0.8 mi · 2 min by car to <span class="station">Waltham</span></div>
+    <div class="footer">58d on market · Townhouse · first seen 2026-05-24</div>
+  </div>
+</div>
+<div class="card">
+  <div class="card-top">
+    <div class="price">$1,425,000</div>
+    
+  </div>
+  <div class="facts"><span class="fact">5 bd</span><span class="fact">3.5 ba</span><span class="fact">3,480 sqft</span></div>
+  <div class="address"><a href="https://www.redfin.com/MA/Waltham/113-Temple-Rd-02452/home/11803829" target="_blank" rel="noopener noreferrer">113 Temple Rd, Waltham, MA, 02452</a></div>
+  <div class="details">
+    <div>Built: 1950</div>
+    <div class="tax">Est. tax/yr: $14,763 <span class="tax-rate">(@ $10.36/$1000)</span></div>
+    <div class="transit">🚆 2.1 mi · 5 min by car to <span class="station">Waverley</span></div>
+    <div class="footer">59d on market · Single Family Residential · first seen 2026-05-28</div>
+  </div>
+</div>
+<div class="card">
+  <div class="card-top">
+    <div class="price">$1,217,000</div>
+    <div class="badges"><span class="badge new-build">New build</span></div>
+  </div>
+  <div class="facts"><span class="fact">4 bd</span><span class="fact">3.5 ba</span><span class="fact">2,950 sqft</span></div>
+  <div class="address"><a href="https://www.redfin.com/MA/Waltham/44-Lakeview-Ter-02451/home/11801854" target="_blank" rel="noopener noreferrer">44 Lakeview Ter, Waltham, MA, 02451</a></div>
+  <div class="details">
+    <div>Built: 2026</div>
+    <div class="tax">Est. tax/yr: $12,608 <span class="tax-rate">(@ $10.36/$1000)</span></div>
+    
+    <div class="footer">77d on market · Single Family Residential · first seen 2026-05-24</div>
+  </div>
+</div>
+<div class="card">
+  <div class="card-top">
+    <div class="price">$1,099,900</div>
+    <div class="badges"><span class="badge new-build">New build</span></div>
+  </div>
+  <div class="facts"><span class="fact">4 bd</span><span class="fact">3.5 ba</span><span class="fact">2,200 sqft</span></div>
+  <div class="address"><a href="https://www.redfin.com/MA/Waltham/89-Hardy-Pond-Rd-02451/home/200381392" target="_blank" rel="noopener noreferrer">89 Hardy Pond Rd, Waltham, MA, 02452</a></div>
+  <div class="details">
+    <div>Built: 2026</div>
+    <div class="tax">Est. tax/yr: $11,395 <span class="tax-rate">(@ $10.36/$1000)</span></div>
+    <div class="transit">🚆 3.2 mi · 8 min by car to <span class="station">Waltham</span></div>
+    <div class="footer">121d on market · Single Family Residential · first seen 2026-05-24</div>
+  </div>
+</div>
+<div class="card">
+  <div class="card-top">
+    <div class="price">$1,300,000</div>
+    
+  </div>
+  <div class="facts"><span class="fact">3 bd</span><span class="fact">2.5 ba</span><span class="fact">2,970 sqft</span></div>
+  <div class="address"><a href="https://www.redfin.com/MA/Waltham/70-School-St-02452/home/11812992" target="_blank" rel="noopener noreferrer">70 School St, Waltham, MA, 02452</a></div>
+  <div class="details">
+    <div>Built: 1775</div>
+    <div class="tax">Est. tax/yr: $13,468 <span class="tax-rate">(@ $10.36/$1000)</span></div>
+    <div class="transit">🚆 0.5 mi · 2 min by car to <span class="station">Waltham</span></div>
+    <div class="footer">225d on market · Single Family Residential · first seen 2026-05-28</div>
+  </div>
+</div></div></section>
+  </div>
+</main>
 </body>
 </html>
