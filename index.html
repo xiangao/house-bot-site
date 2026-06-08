@@ -301,6 +301,29 @@ h2 {
 /* filter bar */
 .filter-bar { display: flex; align-items: center; gap: 8px; margin: 0 0 16px; }
 .filter-bar select { font: inherit; padding: 4px 8px; border: 1px solid #cdd2c9; border-radius: 6px; }
+/* make the "New" band a contained, tinted panel so it reads as distinct from
+   the older per-town listings below it */
+.section-new {
+  margin-top: 8px;
+  padding: 6px 18px 20px;
+  background: var(--soft);
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--blue);
+  border-radius: 10px;
+}
+.section-new .section-header { border-bottom-color: #cbd8cf; }
+/* full-width banner separating the New band from the "older" town sections */
+.band-divider {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 40px 0 6px;
+  padding-bottom: 9px;
+  border-bottom: 2px solid var(--green-dark);
+}
+.band-divider h2 { font-size: 1.05rem; }
+.band-divider .section-count { color: var(--muted); font-size: 0.78rem; font-weight: 650; }
 </style>
 </head>
 <body>
@@ -536,6 +559,7 @@ h2 {
   </div>
   <div class="annotate readonly"><span class="label-chip">Rejected</span><div class="note-readonly">Pretty old</div></div>
 </div></div></div></section>
+<div class="band-divider"><h2>Older listings &middot; by town</h2><span class="section-count">first seen 7+ days ago &middot; 53 listings</span></div>
 <section class="section"><div class="section-header"><h2>Burlington, MA</h2><span class="section-count">4 listings</span></div><div class="grid">
 <div class="card card-pending" data-listing-id="73523508" data-label="">
   <div class="card-top">
